@@ -45,21 +45,44 @@ function handleFiles(files) {
     stagedFiles = stagedFiles.concat([...files]);
 
     // Display file names and "Ready for Upload" status
-    [...files].forEach(file => {
+    renderFileList();
+}
+
+function renderFileList() {
+    // Clear the existing file list
+    fileList.innerHTML = "";
+
+    stagedFiles.forEach((file, index) => { // Add index
         let fileItem = document.createElement('div');
-        fileItem.textContent = `${file.name} (Ready for Upload)`;
+        fileItem.classList.add('file-item'); // Add a class for styling
+
+        let fileName = document.createElement('span');
+        fileName.textContent = `${file.name} (Ready for Upload)`;
+        fileItem.appendChild(fileName);
+
+        let removeButton = document.createElement('span');
+        removeButton.textContent = 'X';
+        removeButton.classList.add('remove-button'); // Add a class for styling
+        removeButton.addEventListener('click', () => removeFile(index)); // Pass index
+        fileItem.appendChild(removeButton);
+
         fileList.appendChild(fileItem);
     });
+     // Show the upload button if there are staged files, otherwise hide it
+    document.getElementById("submit-button").style.display = stagedFiles.length > 0 ? "block" : "none";
+}
 
-    // Show the upload button
-    document.getElementById("submit-button").style.display = "block";
+
+function removeFile(index) {
+    stagedFiles.splice(index, 1); // Remove the file at the given index
+    renderFileList(); // Re-render the file list
 }
 
 // Prevent the default form submission behavior
 uploadForm.addEventListener('submit', function(event) {
     event.preventDefault();  // Prevent the default form submission
 
-    // Now handle the upload using FormData and fetch
+    // Now handle the upload using FormData and XMLHttpRequest
     let formData = new FormData();
     stagedFiles.forEach(file => {
         formData.append('file', file);
@@ -70,41 +93,55 @@ uploadForm.addEventListener('submit', function(event) {
         formData.append('link_password', document.getElementById('link_password').value);
     }
 
-    fetch(window.location.href, {
-        method: 'POST',
-        body: formData,
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.text(); // or response.json() if expecting JSON
-    })
-    .then(data => {
-        // Handle successful upload (e.g., clear the list, display a message)
-        console.log('Success:', data);
-        fileList.innerHTML = ""; // Clear file list
-        stagedFiles = [];     // Clear staged files
-        document.getElementById("submit-button").style.display = "none";  // Hide upload button
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', window.location.href, true);
 
-        //Find flashed message and display it
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
-        let flashMessage = doc.querySelector('.flash-messages');
-        if (flashMessage) {
-          // If the container exists, insert it into the current document.
-          document.querySelector('.container').prepend(flashMessage);
+    // Progress event listener
+    xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+            let percentComplete = (e.loaded / e.total) * 100;
+            progressBar.value = percentComplete;
         }
-        else{
-          // Refresh the page.
-          window.location.reload();
-        }
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-         fileList.innerHTML = ""; // Clear file list
-        stagedFiles = [];     // Clear staged files
-        document.getElementById("submit-button").style.display = "none";  // Hide upload button
-
     });
+
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Handle successful upload
+            console.log('Success:', xhr.responseText);
+            fileList.innerHTML = ""; // Clear file list
+            stagedFiles = [];     // Clear staged files
+            document.getElementById("submit-button").style.display = "none";
+            progressBar.value = 0; // Reset progress bar
+
+            //Find flashed message and display it.
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xhr.responseText, 'text/html');
+            let flashMessage = doc.querySelector('.flash-messages');
+
+            if (flashMessage) {
+              document.querySelector('.container').prepend(flashMessage);
+            } else {
+                window.location.reload();
+            }
+
+        } else {
+            // Handle upload error
+            console.error('Error:', xhr.status, xhr.statusText);
+             fileList.innerHTML = ""; // Clear file list
+            stagedFiles = [];     // Clear staged files
+            document.getElementById("submit-button").style.display = "none";  // Hide upload button
+             progressBar.value = 0;
+        }
+    };
+
+    xhr.onerror = function() {
+        // Handle network errors
+        console.error('Network Error');
+        fileList.innerHTML = "";
+        stagedFiles = [];
+        document.getElementById("submit-button").style.display = "none";
+         progressBar.value = 0;
+    };
+
+    xhr.send(formData);
 });

@@ -215,3 +215,16 @@ td:nth-child(6) {
 .password-protected {
     font-weight: bold;
 }
+
+.file-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.remove-button {
+    color: red;
+    margin-left: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
