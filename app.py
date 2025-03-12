@@ -156,6 +156,11 @@ def upload(token):
             upload_path = link['folder_path']
             filepath = os.path.join(upload_path, filename)
 
+            # Check if the file already exists
+            if os.path.exists(filepath):
+                flash(f'File {filename} already exists. Try Again.', 'warning')
+                return redirect(request.url)
+
             # Disk space check (check for EACH file)
             file.seek(0, os.SEEK_END)
             file_size = file.tell()
