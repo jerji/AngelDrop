@@ -1,0 +1,13 @@
+[Unit]
+Description=Angel Drop File Dropper
+After=network.target
+
+[Service]
+User=syncthing
+Group=syncthing
+WorkingDirectory=/opt/AngelDrop
+ExecStart=/opt/AngelDrop/venv/bin/gunicorn -b 0.0.0.0:5000 -w 4 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
