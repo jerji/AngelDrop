@@ -1,0 +1,7 @@
+{
+  "users": {
+    "admin": "password123"
+  },
+  "BASE_PATH": "/tmp",
+  "SECRET_KEY": "SUPER-SECRET-KEY-REPLACEME"
+}
