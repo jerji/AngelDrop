@@ -120,7 +120,7 @@ For production, you should use a proper WSGI server like **Gunicorn** or **uWSGI
 2. **Run with Gunicorn:**
 
    ```bash
-   gunicorn --workers 3 --bind 0.0.0.0:8000 app:app
+   gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
    ```
 
     * `--workers 3`:  Specifies the number of worker processes (adjust based on your server's resources).
