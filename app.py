@@ -106,7 +106,7 @@ def admin():
         if existing_link:
             flash(f'A link for this folder already exists: {request.url_root}upload/{existing_link["token"]}',
                   'warning')
-            return redirect(url_for('admin', _anchor='links'))
+            return redirect(url_for('admin'))
 
         expiry_timestamp = None
         if expiry:
@@ -118,7 +118,7 @@ def admin():
 
         token = create_link(get_db(), folder_path, passwd, expiry_timestamp)
         flash(f'Link created: {request.url_root}upload/{token}', 'success')
-        return redirect(url_for('admin', _anchor='links'))
+        return redirect(url_for('admin'))
 
     links = get_all_links(get_db())
     return render_template('admin.html', links=links, basepath=app.config['BASE_PATH'].rstrip('/') + '/')
@@ -143,7 +143,7 @@ def cleanup_links():
             cursor.execute('DELETE FROM links WHERE id = ?', (link['id'],))
         db.commit()
         flash(f'{len(links_to_delete)} links cleaned up.', 'success')
-        return redirect(url_for('admin', _anchor='links'))
+        return redirect(url_for('admin'))
 
     return render_template('admin.html', links=links, links_to_delete=links_to_delete, show_cleanup_preview=True,
                            os=os)  # Pass os to the template
@@ -164,7 +164,7 @@ def delete_link(link_id):
     cursor.execute('DELETE FROM links WHERE id = ?', (link_id,))
     db.commit()
     flash('Link deleted successfully', 'success')
-    return redirect(url_for('admin', _anchor='links'))
+    return redirect(url_for('admin'))
 
 
 @app.route('/upload/<token>', methods=['GET', 'POST'])
