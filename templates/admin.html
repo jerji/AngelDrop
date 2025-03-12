@@ -80,7 +80,7 @@
         </td>
         <td><a href="{{ url_for('upload', token=link['token']) }}">{{ url_for('upload', token=link['token']) }}</a></td>
         <td>
-            <button class="copy-button" data-link="{{ url_for('upload', token=link['token'], _external=True) }}">Copy
+            <button class="copy-button" data-link="{{ link['token'] }}">Copy
             </button>
             <form action="{{ url_for('delete_link', link_id=link['id']) }}" method="post" style="display: inline;"
                   onsubmit="return confirm('Are you sure you want to delete this link?');">
@@ -98,7 +98,7 @@
     // ... your copy-button script (no changes needed here) ...
     document.querySelectorAll('.copy-button').forEach(button => {
         button.addEventListener('click', function () {
-            const link = this.dataset.link;
+            const link = window.location.href.split(`admin`)[0] + 'upload/' + this.dataset.link
             navigator.clipboard.writeText(link)
                 .then(() => {
                     this.textContent = 'Copied!';
