@@ -33,7 +33,7 @@ label {
 
 input[type="text"],
 input[type="password"],
-input[type="datetime-local"], /* Added datetime-local */
+input[type="datetime-local"],
 button,
 input[type="file"] {
     width: 100%;
@@ -184,6 +184,22 @@ td:nth-child(6) {
         max-width: 100px; /* Smaller max-width on mobile */
     }
 }
+
+/* Action Button Styles (Delete, Copy, Cleanup) */
+.delete-button,
+.copy-button,
+.cleanup-button {  /* Apply common styles to all action buttons */
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px; /* Slightly smaller font size for buttons */
+    margin-right: 5px; /* Spacing between buttons */
+    transition: background-color 0.3s ease;
+}
+
+
 .delete-button {
     background-color: #d9534f;
 }
@@ -199,6 +215,15 @@ td:nth-child(6) {
 
 .copy-button:hover {
     background-color: #218838;
+}
+
+.cleanup-button {
+    background-color: #d9534f; /* Use the same red as delete */
+    margin-bottom: 10px;
+}
+
+.cleanup-button:hover {
+    background-color: #c9302c; /* Darker red on hover */
 }
 
 /* Style for the password form on the upload page */
@@ -227,4 +252,20 @@ td:nth-child(6) {
     margin-left: 10px;
     cursor: pointer;
     font-weight: bold;
+}
+
+.cleanup-preview {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+.cleanup-preview ul {
+    list-style: none;
+    padding: 0;
+}
+
+.cleanup-preview li {
+    margin-bottom: 5px;
 }

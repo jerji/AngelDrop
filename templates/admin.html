@@ -5,6 +5,7 @@
 
     <h2>Create New Link</h2>
     <form method="post">
+        <!-- ... (Your create link form) ... -->
         <label for="folder_path">Folder Path:</label>
         <input type="text" id="folder_path" name="folder_path" required>
 
@@ -18,8 +19,39 @@
     </form>
 
     <h2 id="links">Existing Links</h2>
+
+    <!-- Cleanup Preview Section (Conditional) -->
+    {% if show_cleanup_preview %}
+        <div class="cleanup-preview">
+            <h3>Links to be Cleaned Up:</h3>
+            {% if links_to_delete %}
+                <ul>
+                    {% for link in links_to_delete %}
+                        <li>
+                            ID: {{ link['id'] }}, Token: {{ link['token'] }}, Path: {{ link['folder_path'] }}
+                            {% if is_link_expired(link) %} (Expired) {% endif %}
+                            {% if not link['folder_path'] or not os.path.exists(link['folder_path']) %} (Directory Not Found) {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No links to clean up.</p>
+            {% endif %}
+              <form action="{{ url_for('cleanup_links') }}" method="post"  onsubmit="return confirm('Are you sure you want to delete expired links and links with non-existent directories?');">
+                <button type="submit" class="cleanup-button">Confirm Cleanup</button>
+                <a href="{{url_for('admin', _anchor='links')}}" class="button">Cancel</a>
+            </form>
+        </div>
+
+     {% else %}
+      <form action="{{ url_for('cleanup_links') }}" method="get" style="display: inline;">
+          <button type="submit" class="cleanup-button">Cleanup Links</button>
+      </form>
+    {% endif %}
+    <!-- Existing Links Table -->
     <table>
-        <thead>
+    <!-- ... (rest of your table from before) ... -->
+       <thead>
             <tr>
                 <th>ID</th>
                 <th>Token</th>
@@ -57,10 +89,12 @@
             {% endfor %}
         </tbody>
     </table>
+
     <a href="{{ url_for('logout') }}">Logout</a>
 
     <script>
-        document.querySelectorAll('.copy-button').forEach(button => {
+     // ... your copy-button script (no changes needed here) ...
+      document.querySelectorAll('.copy-button').forEach(button => {
             button.addEventListener('click', function() {
                 const link = this.dataset.link;
                 navigator.clipboard.writeText(link)

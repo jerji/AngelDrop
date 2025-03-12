@@ -109,6 +109,34 @@ def admin():
     links = get_all_links(get_db())
     return render_template('admin.html', links=links)
 
+@app.route('/admin/cleanup', methods=['GET','POST']) #Allow GET requests
+def cleanup_links():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    db = get_db()
+    links = get_all_links(db)
+    links_to_delete = []
+
+    for link in links:
+        if is_link_expired(link) or not os.path.exists(link['folder_path']):
+            links_to_delete.append(link)
+
+    if request.method == 'POST':
+        cursor = db.cursor()
+        for link in links_to_delete:
+                cursor.execute('DELETE FROM links WHERE id = ?', (link['id'],))
+        db.commit()
+        flash(f'{len(links_to_delete)} links cleaned up.', 'success')
+        return redirect(url_for('admin', _anchor='links'))
+
+    return render_template('admin.html', links=links, links_to_delete=links_to_delete, show_cleanup_preview=True, os=os) # Pass os to the template
+
+
+
+@app.context_processor
+def inject_os():
+    return dict(os=os)
 
 @app.route('/admin/delete/<int:link_id>', methods=['POST'])
 def delete_link(link_id):
