@@ -58,12 +58,14 @@ specific folders on your server. It prioritizes security and ease of use, provid
         "users": {
           "admin": "your_strong_admin_password"
         },
+        "BASE_PATH": "/var/tmp/a/folder",
         "SECRET_KEY": "your_very_long_random_secret_key"
       }
       ```
 
     * **`users`:**  Add your desired admin username(s) and password(s) here.  *Change the default password immediately!*
       This is crucial for security.
+    * **`BASE_PATH`:** The base path that this app will use as it's root. using `/` will be the entire system.
     * **`SECRET_KEY`:** Generate a strong, random secret key. You can use a command like this in your terminal:
 
       ```bash

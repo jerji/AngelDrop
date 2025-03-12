@@ -6,20 +6,20 @@ let uploadForm = document.getElementById('upload-form');
 let stagedFiles = []; // Array to store staged files
 
 ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-  document.addEventListener(eventName, preventDefaults, false);
+    document.addEventListener(eventName, preventDefaults, false);
 });
 
-function preventDefaults (e) {
-  e.preventDefault();
-  e.stopPropagation();
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
 }
 
 ;['dragenter', 'dragover'].forEach(eventName => {
-  document.addEventListener(eventName, highlight, false);
+    document.addEventListener(eventName, highlight, false);
 });
 
 ;['dragleave', 'drop'].forEach(eventName => {
-  document.addEventListener(eventName, unhighlight, false);
+    document.addEventListener(eventName, unhighlight, false);
 });
 
 function highlight(e) {
@@ -35,9 +35,9 @@ function unhighlight(e) {
 document.addEventListener('drop', handleDrop, false);
 
 function handleDrop(e) {
-  let dt = e.dataTransfer;
-  let files = dt.files;
-  handleFiles(files);
+    let dt = e.dataTransfer;
+    let files = dt.files;
+    handleFiles(files);
 }
 
 function handleFiles(files) {
@@ -68,7 +68,7 @@ function renderFileList() {
 
         fileList.appendChild(fileItem);
     });
-     // Show the upload button if there are staged files, otherwise hide it
+    // Show the upload button if there are staged files, otherwise hide it
     document.getElementById("submit-button").style.display = stagedFiles.length > 0 ? "block" : "none";
 }
 
@@ -79,7 +79,7 @@ function removeFile(index) {
 }
 
 // Prevent the default form submission behavior
-uploadForm.addEventListener('submit', function(event) {
+uploadForm.addEventListener('submit', function (event) {
     event.preventDefault();  // Prevent the default form submission
 
     // Now handle the upload using FormData and XMLHttpRequest
@@ -88,7 +88,7 @@ uploadForm.addEventListener('submit', function(event) {
         formData.append('file', file);
     });
 
-     // Append password if required
+    // Append password if required
     if (document.getElementById('link_password')) {
         formData.append('link_password', document.getElementById('link_password').value);
     }
@@ -97,14 +97,13 @@ uploadForm.addEventListener('submit', function(event) {
     xhr.open('POST', window.location.href, true);
 
     // Progress event listener
-    xhr.upload.addEventListener('progress', function(e) {
+    xhr.upload.addEventListener('progress', function (e) {
         if (e.lengthComputable) {
-            let percentComplete = (e.loaded / e.total) * 100;
-            progressBar.value = percentComplete;
+            progressBar.value = (e.loaded / e.total) * 100;
         }
     });
 
-    xhr.onload = function() {
+    xhr.onload = function () {
         if (xhr.status >= 200 && xhr.status < 300) {
             // Handle successful upload
             console.log('Success:', xhr.responseText);
@@ -119,7 +118,7 @@ uploadForm.addEventListener('submit', function(event) {
             let flashMessage = doc.querySelector('.flash-messages');
 
             if (flashMessage) {
-              document.querySelector('.container').prepend(flashMessage);
+                document.querySelector('.container').prepend(flashMessage);
             } else {
                 window.location.reload();
             }
@@ -127,20 +126,20 @@ uploadForm.addEventListener('submit', function(event) {
         } else {
             // Handle upload error
             console.error('Error:', xhr.status, xhr.statusText);
-             fileList.innerHTML = ""; // Clear file list
+            fileList.innerHTML = ""; // Clear file list
             stagedFiles = [];     // Clear staged files
             document.getElementById("submit-button").style.display = "none";  // Hide upload button
-             progressBar.value = 0;
+            progressBar.value = 0;
         }
     };
 
-    xhr.onerror = function() {
+    xhr.onerror = function () {
         // Handle network errors
         console.error('Network Error');
         fileList.innerHTML = "";
         stagedFiles = [];
         document.getElementById("submit-button").style.display = "none";
-         progressBar.value = 0;
+        progressBar.value = 0;
     };
 
     xhr.send(formData);

@@ -13,6 +13,7 @@ app = Flask(__name__)
 with open('config.json', 'r') as f:
     config = json.load(f)
 app.config['SECRET_KEY'] = config['SECRET_KEY']
+app.config['BASE_PATH'] = config['BASE_PATH'].rstrip('/')
 
 # --- Database Configuration (Absolute Path) ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -79,8 +80,16 @@ def admin():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        folder_path = request.form['folder_path']
+        folder_path = os.path.join(app.config['BASE_PATH'], request.form['folder_path'])
         folder_path = folder_path.rstrip('/')
+
+        base_path = os.path.join(os.path.realpath(app.config['BASE_PATH']), '')
+        real_path = os.path.join(os.path.realpath(folder_path), '')
+
+        if os.path.commonprefix([base_path, real_path]) != base_path:
+            flash(f'Folder must be inside the base path! ({base_path})', 'error')
+            return redirect(url_for('admin'))
+
         passwd = request.form.get('password')  # Use .get() for optional fields
         expiry = request.form.get('expiry')
 
@@ -107,9 +116,10 @@ def admin():
         return redirect(url_for('admin', _anchor='links'))
 
     links = get_all_links(get_db())
-    return render_template('admin.html', links=links)
+    return render_template('admin.html', links=links, basepath=app.config['BASE_PATH'])
 
-@app.route('/admin/cleanup', methods=['GET','POST']) #Allow GET requests
+
+@app.route('/admin/cleanup', methods=['GET', 'POST'])  # Allow GET requests
 def cleanup_links():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
@@ -125,18 +135,19 @@ def cleanup_links():
     if request.method == 'POST':
         cursor = db.cursor()
         for link in links_to_delete:
-                cursor.execute('DELETE FROM links WHERE id = ?', (link['id'],))
+            cursor.execute('DELETE FROM links WHERE id = ?', (link['id'],))
         db.commit()
         flash(f'{len(links_to_delete)} links cleaned up.', 'success')
         return redirect(url_for('admin', _anchor='links'))
 
-    return render_template('admin.html', links=links, links_to_delete=links_to_delete, show_cleanup_preview=True, os=os) # Pass os to the template
-
+    return render_template('admin.html', links=links, links_to_delete=links_to_delete, show_cleanup_preview=True,
+                           os=os)  # Pass os to the template
 
 
 @app.context_processor
 def inject_os():
     return dict(os=os)
+
 
 @app.route('/admin/delete/<int:link_id>', methods=['POST'])
 def delete_link(link_id):
