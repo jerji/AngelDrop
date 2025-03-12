@@ -3,8 +3,7 @@ import json
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
-from database import get_db, init_db, create_link, get_link_by_token, get_all_links, get_user, add_user, \
-    get_link_by_path, check_link_password, is_link_expired
+from database import *
 import time
 
 app = Flask(__name__)
@@ -138,10 +137,8 @@ def cleanup_links():
             links_to_delete.append(link)
 
     if request.method == 'POST':
-        cursor = db.cursor()
         for link in links_to_delete:
-            cursor.execute('DELETE FROM links WHERE id = ?', (link['id'],))
-        db.commit()
+            delete_db_link(db, link['id'])
         flash(f'{len(links_to_delete)} links cleaned up.', 'success')
         return redirect(url_for('admin'))
 
@@ -158,11 +155,8 @@ def inject_os():
 def delete_link(link_id):
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-
     db = get_db()
-    cursor = db.cursor()
-    cursor.execute('DELETE FROM links WHERE id = ?', (link_id,))
-    db.commit()
+    delete_db_link(db, link_id)
     flash('Link deleted successfully', 'success')
     return redirect(url_for('admin'))
 

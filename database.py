@@ -78,6 +78,11 @@ def is_link_expired(link):
         return False  # No expiry set, never expired
     return link['expiry_timestamp'] < int(time.time())
 
+def delete_db_link(db, link):
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM links WHERE id = ?', (link,))
+    db.commit()
+
 
 def get_user(db, username):
     cursor = db.cursor()
