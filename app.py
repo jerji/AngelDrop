@@ -1,14 +1,11 @@
 import os
-import secrets
 import json
-import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, session
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
-from database import get_db, init_db, create_link, get_link_by_token, get_all_links, get_user, add_user, get_link_by_path, check_link_password, is_link_expired
-import models
-import shutil
-import time  # Import the time module
+from database import get_db, init_db, create_link, get_link_by_token, get_all_links, get_user, add_user, \
+    get_link_by_path, check_link_password, is_link_expired
+import time
 
 app = Flask(__name__)
 
@@ -25,11 +22,13 @@ if not os.path.exists(DB_DIR):
 DATABASE = os.path.join(DB_DIR, 'uploader.db')
 app.config['DATABASE'] = DATABASE
 
+
 # --- Helper Functions ---
 
 def get_available_space(path):
     statvfs = os.statvfs(path)
     return statvfs.f_frsize * statvfs.f_bavail
+
 
 def check_credentials(username, password):
     user = get_user(get_db(), username)
@@ -37,16 +36,19 @@ def check_credentials(username, password):
         return True
     return False
 
+
 # --- Custom Template Filter ---
 @app.template_filter('datetimeformat')
-def datetimeformat(value, format='%Y-%m-%d %H:%M'):
+def datetimeformat(value, d_format='%Y-%m-%d %H:%M'):
     ts = time.gmtime(value)
-    return time.strftime(format, ts)
+    return time.strftime(d_format, ts)
+
 
 # --- Make is_link_expired available in templates ---
 @app.context_processor
 def inject_is_link_expired():
     return dict(is_link_expired=is_link_expired)
+
 
 # --- Routes ---
 # ... (your routes: /login, /logout, /admin, /admin/delete,) ...
@@ -63,11 +65,13 @@ def login():
             flash('Invalid credentials', 'error')
     return render_template('login.html')
 
+
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
     return redirect(url_for('login'))
+
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -86,7 +90,8 @@ def admin():
 
         existing_link = get_link_by_path(get_db(), folder_path)
         if existing_link:
-            flash(f'A link for this folder already exists: {request.url_root}upload/{existing_link["token"]}', 'warning')
+            flash(f'A link for this folder already exists: {request.url_root}upload/{existing_link["token"]}',
+                  'warning')
             return redirect(url_for('admin', _anchor='links'))
 
         expiry_timestamp = None
@@ -103,6 +108,7 @@ def admin():
 
     links = get_all_links(get_db())
     return render_template('admin.html', links=links)
+
 
 @app.route('/admin/delete/<int:link_id>', methods=['POST'])
 def delete_link(link_id):
@@ -157,26 +163,26 @@ def upload(token):
             available_space = get_available_space(upload_path)
             if file_size > available_space:
                 flash(f'Not enough disk space for {filename}', 'error')
-                return redirect(request.url) # Stop on first error
+                return redirect(request.url)  # Stop on first error
 
             try:
                 file.save(filepath)
             except Exception as e:
                 flash(f'Error saving {filename}: {e}', 'error')
-                return redirect(request.url) # Stop on first error
-        flash('All files uploaded successfully', 'success') # Only flash if all files were saved.
+                return redirect(request.url)  # Stop on first error
+        flash('All files uploaded successfully', 'success')  # Only flash if all files were saved.
         return redirect(request.url)
 
     requires_password = link['password_hash'] is not None
     return render_template('upload.html', token=token, requires_password=requires_password)
 
+
 # --- Initialization ---
 with app.app_context():
-     init_db(app)
-     db = get_db()
-     for username, password in config["users"].items():
+    init_db(app)
+    db = get_db()
+    for username, password in config["users"].items():
         add_user(db, username, password)
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
