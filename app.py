@@ -158,8 +158,8 @@ def upload(token):
 
             # Check if the file already exists
             if os.path.exists(filepath):
-                flash(f'File {filename} already exists. Try Again.', 'warning')
-                return redirect(request.url)
+                flash(f'File {filename} already exists. Try Again.', 'error')
+                continue
 
             # Disk space check (check for EACH file)
             file.seek(0, os.SEEK_END)
@@ -175,7 +175,7 @@ def upload(token):
             except Exception as e:
                 flash(f'Error saving {filename}: {e}', 'error')
                 return redirect(request.url)  # Stop on first error
-        flash('All files uploaded successfully', 'success')  # Only flash if all files were saved.
+            flash(f'File {filename} Uploaded successfully.', 'success')
         return redirect(request.url)
 
     requires_password = link['password_hash'] is not None

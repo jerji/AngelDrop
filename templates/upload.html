@@ -22,11 +22,7 @@
         <progress id="progress-bar" max=100 value=0></progress>
         <div id="file-list"></div>
 
-         {% if requires_password %}
-          <button type = "submit" id="submit-button">Upload</button>
-         {% else %}
-          <button type = "submit" id="submit-button" style = "display: none;">Upload</button>
-         {% endif %}
+        <button type = "submit" id="submit-button" style="display: none;">Upload</button> <!-- Always hidden initially -->
     </form>
 
 {% endblock %}

@@ -1,14 +1,12 @@
-// ... (previous JavaScript, drag-and-drop handling) ...
-// No changes needed here for the combined form approach.
 let dropArea = document.getElementById('drop-area');
 let fileElem = document.getElementById('fileElem');
 let progressBar = document.getElementById('progress-bar');
 let fileList = document.getElementById('file-list');
 let uploadForm = document.getElementById('upload-form');
+let stagedFiles = []; // Array to store staged files
 
-// Listen for events on the whole document
 ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-  document.addEventListener(eventName, preventDefaults, false); // Changed from dropArea
+  document.addEventListener(eventName, preventDefaults, false);
 });
 
 function preventDefaults (e) {
@@ -17,19 +15,11 @@ function preventDefaults (e) {
 }
 
 ;['dragenter', 'dragover'].forEach(eventName => {
-  document.addEventListener(eventName, (e) => {
-    highlight(e);
-    e.preventDefault(); // Prevent default browser behavior
-    e.stopPropagation(); // Stop event bubbling
-  }, false);
+  document.addEventListener(eventName, highlight, false);
 });
 
 ;['dragleave', 'drop'].forEach(eventName => {
-  document.addEventListener(eventName, (e) => {
-    unhighlight(e);
-    e.preventDefault();
-    e.stopPropagation();
-  }, false);
+  document.addEventListener(eventName, unhighlight, false);
 });
 
 function highlight(e) {
@@ -42,47 +32,79 @@ function unhighlight(e) {
         dropArea.classList.remove('highlight');
 }
 
-document.addEventListener('drop', handleDrop, false); // Changed from dropArea
+document.addEventListener('drop', handleDrop, false);
 
 function handleDrop(e) {
   let dt = e.dataTransfer;
   let files = dt.files;
-
   handleFiles(files);
 }
-function handleFiles(files) {
-  ([...files]).forEach(uploadFile);
-    document.getElementById("submit-button").style.display = "block";
 
+function handleFiles(files) {
+    // Add files to the stagedFiles array
+    stagedFiles = stagedFiles.concat([...files]);
+
+    // Display file names and "Ready for Upload" status
+    [...files].forEach(file => {
+        let fileItem = document.createElement('div');
+        fileItem.textContent = `${file.name} (Ready for Upload)`;
+        fileList.appendChild(fileItem);
+    });
+
+    // Show the upload button
+    document.getElementById("submit-button").style.display = "block";
 }
 
-function uploadFile(file) {
-    let url = window.location.href;
-    let formData = new FormData(uploadForm);
+// Prevent the default form submission behavior
+uploadForm.addEventListener('submit', function(event) {
+    event.preventDefault();  // Prevent the default form submission
 
-    formData.append('file', file);
+    // Now handle the upload using FormData and fetch
+    let formData = new FormData();
+    stagedFiles.forEach(file => {
+        formData.append('file', file);
+    });
 
-        // Display file name
-    let fileItem = document.createElement('div');
-    fileItem.textContent = file.name;
-    fileList.appendChild(fileItem);
+     // Append password if required
+    if (document.getElementById('link_password')) {
+        formData.append('link_password', document.getElementById('link_password').value);
+    }
 
-
-    fetch(url, {
-      method: 'POST',
-      body: formData,
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
     })
     .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.text();
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text(); // or response.json() if expecting JSON
     })
-    .then(() => {
-        fileItem.textContent += " (Ready for Upload)";
+    .then(data => {
+        // Handle successful upload (e.g., clear the list, display a message)
+        console.log('Success:', data);
+        fileList.innerHTML = ""; // Clear file list
+        stagedFiles = [];     // Clear staged files
+        document.getElementById("submit-button").style.display = "none";  // Hide upload button
+
+        //Find flashed message and display it
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+        let flashMessage = doc.querySelector('.flash-messages');
+        if (flashMessage) {
+          // If the container exists, insert it into the current document.
+          document.querySelector('.container').prepend(flashMessage);
+        }
+        else{
+          // Refresh the page.
+          window.location.reload();
+        }
     })
     .catch((error) => {
-      console.error('Error:', error);
-        fileItem.textContent += " (Upload Failed)";
+        console.error('Error:', error);
+         fileList.innerHTML = ""; // Clear file list
+        stagedFiles = [];     // Clear staged files
+        document.getElementById("submit-button").style.display = "none";  // Hide upload button
+
     });
-}
+});
