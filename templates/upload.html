@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Upload File</h1>
+    <p>Upload files to: {{ token }}</p>
+
+    <form method="post" enctype="multipart/form-data" id="upload-form">  <!-- Combined form -->
+        <input type="hidden" name="token" value="{{ token }}">
+
+        {% if requires_password %}
+            <div id="password-section">
+                <label for="link_password">Password:</label>
+                <input type="password" id="link_password" name="link_password" required>
+            </div>
+        {% endif %}
+
+        <div id="drop-area">
+            <p>Drag and drop files here, or click to select files.</p>
+            <input type="file" id="fileElem" name="file" multiple style="display:none" onchange="handleFiles(this.files)">
+            <label class="button" for="fileElem">Select files</label>
+        </div>
+        <progress id="progress-bar" max=100 value=0></progress>
+        <div id="file-list"></div>
+
+         {% if requires_password %}
+          <button type = "submit" id="submit-button">Upload</button>
+         {% else %}
+          <button type = "submit" id="submit-button" style = "display: none;">Upload</button>
+         {% endif %}
+    </form>
+
+{% endblock %}

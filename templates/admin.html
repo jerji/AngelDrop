@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Admin Panel</h1>
+
+    <h2>Create New Link</h2>
+    <form method="post">
+        <label for="folder_path">Folder Path:</label>
+        <input type="text" id="folder_path" name="folder_path" required>
+
+        <label for="password">Password (optional):</label>
+        <input type="password" id="password" name="password">
+
+        <label for="expiry">Expiry (optional, YYYY-MM-DDTHH:MM):</label>
+        <input type="datetime-local" id="expiry" name="expiry">
+
+        <button type="submit">Create Link</button>
+    </form>
+
+    <h2 id="links">Existing Links</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Token</th>
+                <th>Folder Path</th>
+                <th>Password Protected</th>
+                <th>Expiry</th>
+                <th>Link</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for link in links %}
+            <tr>
+                <td>{{ link['id'] }}</td>
+                <td>{{ link['token'] }}</td>
+                <td>{{ link['folder_path'] }}</td>
+                <td class="{% if link['password_hash'] %}password-protected{% endif %}">
+                    {{ 'Yes' if link['password_hash'] else 'No' }}
+                </td>
+                <td class="{% if is_link_expired(link) %}expired{% endif %}">
+                    {% if link['expiry_timestamp'] %}
+                        {{ link['expiry_timestamp'] | datetimeformat }}
+                    {% else %}
+                        None
+                    {% endif %}
+                </td>
+                <td><a href="{{ url_for('upload', token=link['token']) }}">{{ url_for('upload', token=link['token']) }}</a></td>
+                <td>
+                    <button class="copy-button" data-link="{{ url_for('upload', token=link['token'], _external=True) }}">Copy</button>
+                    <form action="{{ url_for('delete_link', link_id=link['id']) }}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this link?');">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+    <script>
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const link = this.dataset.link;
+                navigator.clipboard.writeText(link)
+                    .then(() => {
+                        this.textContent = 'Copied!';
+                        setTimeout(() => this.textContent = 'Copy', 1500);
+                    })
+                    .catch(err => {
+                        console.error('Could not copy text: ', err);
+                        alert('Could not copy link.  Please copy manually.');
+                    });
+            });
+        });
+    </script>
+{% endblock %}

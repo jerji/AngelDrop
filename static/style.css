@@ -1,0 +1,217 @@
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #446688;
+}
+
+/* Form Styles */
+form {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="datetime-local"], /* Added datetime-local */
+button,
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button,
+.button {
+    background-color: #5c85a3;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+    width: auto;
+}
+
+button:hover,
+.button:hover {
+    background-color: #446688;
+}
+
+/* Flash Message Styles */
+.flash-messages {
+    list-style: none;
+    padding: 0;
+}
+
+.flash-messages li {
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.success {
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    color: #3c763d;
+}
+
+.error {
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    color: #a94442;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed; /* Crucial for responsiveness */
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    word-wrap: break-word; /* Allow long words to break */
+}
+
+th {
+    background-color: #f8f8f8;
+}
+
+/* Set max-width for specific columns */
+th:nth-child(1), /* ID */
+td:nth-child(1) {
+    max-width: 50px;
+}
+
+th:nth-child(2), /* Token */
+td:nth-child(2) {
+    max-width: 150px; /* Adjust as needed */
+}
+
+th:nth-child(3),  /*Folder Path*/
+td:nth-child(3) {
+  max-width: 150px;
+}
+
+th:nth-child(6), /* Link */
+td:nth-child(6) {
+    max-width: 100px; /* Adjust as needed */
+}
+
+
+/* Upload Area Styles */
+#drop-area {
+    border: 2px dashed #bbb;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #fafafa;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+#drop-area.highlight {
+    border-color: #4CAF50;
+    background-color: #e8ffe9;
+}
+
+#drop-area p {
+    font-size: 18px;
+    color: #666;
+}
+
+#file-list {
+    margin-top: 20px;
+}
+
+#file-list div {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Make it responsive */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 20px;
+    }
+    #drop-area {
+        padding: 20px;
+    }
+    #drop-area p{
+        font-size: 15px;
+    }
+     /* Adjust table column widths for smaller screens */
+    th:nth-child(2),
+    td:nth-child(2),
+    th:nth-child(3),
+    td:nth-child(3),
+    th:nth-child(6),
+    td:nth-child(6) {
+        max-width: 100px; /* Smaller max-width on mobile */
+    }
+}
+.delete-button {
+    background-color: #d9534f;
+}
+
+.delete-button:hover {
+    background-color: #c9302c;
+}
+
+.copy-button {
+    background-color: #28a745;
+    margin-right: 5px;
+}
+
+.copy-button:hover {
+    background-color: #218838;
+}
+
+/* Style for the password form on the upload page */
+#password-form {
+    margin-bottom: 20px;
+    text-align: center; /* Center the password form */
+}
+
+.expired {
+    color: red;
+    font-weight: bold; /* Optional: make it bold as well */
+}
+
+.password-protected {
+    font-weight: bold;
+}
