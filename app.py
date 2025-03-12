@@ -13,7 +13,12 @@ app = Flask(__name__)
 with open('config.json', 'r') as f:
     config = json.load(f)
 app.config['SECRET_KEY'] = config['SECRET_KEY']
-app.config['BASE_PATH'] = config['BASE_PATH'].rstrip('/')
+
+if config['BASE_PATH'] == '/':
+    app.config['BASE_PATH'] = '/'
+else:
+    app.config['BASE_PATH'] = config['BASE_PATH'].rstrip('/')
+
 
 # --- Database Configuration (Absolute Path) ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -116,7 +121,7 @@ def admin():
         return redirect(url_for('admin', _anchor='links'))
 
     links = get_all_links(get_db())
-    return render_template('admin.html', links=links, basepath=app.config['BASE_PATH'])
+    return render_template('admin.html', links=links, basepath=app.config['BASE_PATH'].rstrip('/') + '/')
 
 
 @app.route('/admin/cleanup', methods=['GET', 'POST'])  # Allow GET requests
