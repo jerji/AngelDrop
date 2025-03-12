@@ -1,30 +1,38 @@
 # AngelDrop - Simple File Dropper.
+
 ## BIG, BOLD, SHAMEFUL WARNING!
 
-**THIS CODE WAS LARGELY GENERATED WITH THE ASSISTANCE OF AN AI (Gemini 2.0 Pro). I, THE "AUTHOR," FEEL A DEEP SENSE OF SHAME AND REGRET FOR NOT HAVING CRAFTED EVERY LINE OF THIS SCRIPT BY HAND, WITH THE SWEAT OF MY BROW AND THE GRIT OF PURE, UNADULTERATED CODING PROWESS. I APOLOGIZE FOR ANY INCONVENIENCE, OFFENSE, OR EXISTENTIAL DREAD THIS MAY CAUSE.  PLEASE USE WITH CAUTION, AND KNOW THAT A HUMAN (ME) *DID* REVIEW AND MODIFY THE AI-GENERATED OUTPUT, BUT THE ORIGINAL SIN OF AI ASSISTANCE REMAINS.**  Consider contributing improvements or rewriting sections entirely if you feel so moved! The goal was to provide a functional tool, and hopefully, the end result is helpful despite its origins.  My apologies.
+**THIS CODE WAS LARGELY GENERATED WITH THE ASSISTANCE OF AN AI (Gemini 2.0 Pro). I, THE "AUTHOR," FEEL A DEEP SENSE OF
+SHAME AND REGRET FOR NOT HAVING CRAFTED EVERY LINE OF THIS SCRIPT BY HAND, WITH THE SWEAT OF MY BROW AND THE GRIT OF
+PURE, UNADULTERATED CODING PROWESS. I APOLOGIZE FOR ANY INCONVENIENCE, OFFENSE, OR EXISTENTIAL DREAD THIS MAY CAUSE.
+PLEASE USE WITH CAUTION, AND KNOW THAT A HUMAN (ME) *DID* REVIEW AND MODIFY THE AI-GENERATED OUTPUT, BUT THE ORIGINAL
+SIN OF AI ASSISTANCE REMAINS.**  Consider contributing improvements or rewriting sections entirely if you feel so moved!
+The goal was to provide a functional tool, and hopefully, the end result is helpful despite its origins. My apologies.
 
 ---
-AngelDrop is a self-hosted file-sharing tool built with Python (Flask) that allows you to easily create upload links for specific folders on your server. It prioritizes security and ease of use, providing features like:
+AngelDrop is a self-hosted file-sharing tool built with Python (Flask) that allows you to easily create upload links for
+specific folders on your server. It prioritizes security and ease of use, providing features like:
 
-*   **Secure Uploads:**  Uses strong password hashing, random token generation, and prevents directory traversal.
-*   **Per-Folder Links:**  Generate unique, opaque links for different folders. Users cannot change the destination folder.
-*   **Password Protection (Optional):**  Add password protection to individual upload links.
-*   **Expiry Times (Optional):** Set expiration times for upload links.
-*   **Admin Interface:** A simple web interface to manage links (create, delete, copy to clipboard), with password-protected login.
-*   **Drag-and-Drop Upload:**  Drag and drop files anywhere on the upload page, or use a traditional file picker.
-*   **Multiple File Uploads:**  Supports uploading multiple files at once.
-*   **Disk Space Checks:**  Verifies sufficient disk space before accepting uploads.
-*   **SQLite Database:** Uses SQLite for easy setup and deployment (suitable for small to medium-scale use).
-*   **Responsive Design:** Works well on both desktop and mobile devices.
+* **Secure Uploads:**  Uses strong password hashing, random token generation, and prevents directory traversal.
+* **Per-Folder Links:**  Generate unique, opaque links for different folders. Users cannot change the destination
+  folder.
+* **Password Protection (Optional):**  Add password protection to individual upload links.
+* **Expiry Times (Optional):** Set expiration times for upload links.
+* **Admin Interface:** A simple web interface to manage links (create, delete, copy to clipboard), with
+  password-protected login.
+* **Drag-and-Drop Upload:**  Drag and drop files anywhere on the upload page, or use a traditional file picker.
+* **Multiple File Uploads:**  Supports uploading multiple files at once.
+* **Disk Space Checks:**  Verifies sufficient disk space before accepting uploads.
+* **SQLite Database:** Uses SQLite for easy setup and deployment (suitable for small to medium-scale use).
+* **Responsive Design:** Works well on both desktop and mobile devices.
 
 ## Requirements
 
-*   Python 3.7+
-*   pip
+* Python 3.7+
+* pip
 * A system where you can run python code
 
 ## Installation and Setup
-
 
 1. **Create a Virtual Environment (Recommended):**
 
@@ -36,33 +44,34 @@ AngelDrop is a self-hosted file-sharing tool built with Python (Flask) that allo
 
 2. **Install Dependencies:**
 
-
         ```bash
         pip install flask werkzeug
         ```
 
 3. **Configure `config.json`:**
 
-    *   Create a file named `config.json` in the `file_uploader` directory.
-    *   Add the following content, *replacing the placeholder values*:
+    * Create a file named `config.json` in the `file_uploader` directory.
+    * Add the following content, *replacing the placeholder values*:
 
-        ```json
-        {
-          "users": {
-            "admin": "your_strong_admin_password"
-          },
-          "SECRET_KEY": "your_very_long_random_secret_key"
-        }
-        ```
+      ```json
+      {
+        "users": {
+          "admin": "your_strong_admin_password"
+        },
+        "SECRET_KEY": "your_very_long_random_secret_key"
+      }
+      ```
 
-    *   **`users`:**  Add your desired admin username(s) and password(s) here.  *Change the default password immediately!*  This is crucial for security.
-    *   **`SECRET_KEY`:** Generate a strong, random secret key.  You can use a command like this in your terminal:
+    * **`users`:**  Add your desired admin username(s) and password(s) here.  *Change the default password immediately!*
+      This is crucial for security.
+    * **`SECRET_KEY`:** Generate a strong, random secret key. You can use a command like this in your terminal:
 
-        ```bash
-        python -c 'import secrets; print(secrets.token_hex(32))'
-        ```
+      ```bash
+      python -c 'import secrets; print(secrets.token_hex(32))'
+      ```
 
-        Copy the output and paste it as the value for `SECRET_KEY`.  This key is essential for securing your application (session management, etc.).
+      Copy the output and paste it as the value for `SECRET_KEY`. This key is essential for securing your application (
+      session management, etc.).
 
 4. **Run the Application:**
 
@@ -70,64 +79,75 @@ AngelDrop is a self-hosted file-sharing tool built with Python (Flask) that allo
     python app.py
     ```
 
-7.  **Access the Application:**
+7. **Access the Application:**
 
-    *   **Admin Panel:** Open your web browser and go to `http://127.0.0.1:5000/admin`. Log in with the credentials you set in `config.json`.
-    *   **Upload Links:** Create upload links in the admin panel.  These links will be of the form `http://127.0.0.1:5000/upload/<unique_token>`.
+    * **Admin Panel:** Open your web browser and go to `http://127.0.0.1:5000/admin`. Log in with the credentials you
+      set in `config.json`.
+    * **Upload Links:** Create upload links in the admin panel. These links will be of the form
+      `http://127.0.0.1:5000/upload/<unique_token>`.
 
 ## Usage
 
-1.  **Admin Panel:**
-    *   Log in to the admin panel (`/admin`).
-    *   **Create Links:** Enter the *full, absolute path* to the folder you want to create an upload link for.  Optionally, set a password and/or an expiry time (in `YYYY-MM-DDTHH:MM` format). Click "Create Link".
-    *   **Manage Links:**  View existing links, copy them to your clipboard, or delete them.  Expired links are highlighted in red.
-2.  **Uploading Files:**
-    *   Visit an upload link.
-    *   If the link is password-protected, enter the password.
-    *   Drag and drop files onto the page, or click "Select files" to use the file picker.
-    *   Multiple files can be uploaded simultaneously.
+1. **Admin Panel:**
+    * Log in to the admin panel (`/admin`).
+    * **Create Links:** Enter the *full, absolute path* to the folder you want to create an upload link for. Optionally,
+      set a password and/or an expiry time (in `YYYY-MM-DDTHH:MM` format). Click "Create Link".
+    * **Manage Links:**  View existing links, copy them to your clipboard, or delete them. Expired links are highlighted
+      in red.
+    * **Clean up Links:** Provides an eazy way do clean up expired links and links where the folder was deleted.
+2. **Uploading Files:**
+    * Visit an upload link.
+    * If the link is password-protected, enter the password.
+    * Drag and drop files onto the page, or click "Select files" to use the file picker.
+    * Multiple files can be uploaded simultaneously.
 
 ## Deployment (Important!)
 
-**Do *not* use the built-in Flask development server (`python app.py`) for production deployments.** It's not designed for security or performance in a real-world setting.
+**Do *not* use the built-in Flask development server (`python app.py`) for production deployments.** It's not designed
+for security or performance in a real-world setting.
 
-For production, you should use a proper WSGI server like **Gunicorn** or **uWSGI**, along with a reverse proxy like **Nginx** or **Apache**.  Here's a basic example using Gunicorn:
+For production, you should use a proper WSGI server like **Gunicorn** or **uWSGI**, along with a reverse proxy like *
+*Nginx** or **Apache**. Here's a basic example using Gunicorn:
 
-1.  **Install Gunicorn:**
+1. **Install Gunicorn:**
 
-    ```bash
-    pip install gunicorn
-    ```
+   ```bash
+   pip install gunicorn
+   ```
 
-2.  **Run with Gunicorn:**
+2. **Run with Gunicorn:**
 
-    ```bash
-    gunicorn --workers 3 --bind 0.0.0.0:8000 app:app
-    ```
+   ```bash
+   gunicorn --workers 3 --bind 0.0.0.0:8000 app:app
+   ```
 
-    *   `--workers 3`:  Specifies the number of worker processes (adjust based on your server's resources).
-    *   `--bind 0.0.0.0:8000`:  Binds to all interfaces on port 8000 (you can change the port).
-    *   `app:app`:  Tells Gunicorn where to find your Flask application (`app` is the filename, and the second `app` is the variable name of your Flask instance).
+    * `--workers 3`:  Specifies the number of worker processes (adjust based on your server's resources).
+    * `--bind 0.0.0.0:8000`:  Binds to all interfaces on port 8000 (you can change the port).
+    * `app:app`:  Tells Gunicorn where to find your Flask application (`app` is the filename, and the second `app` is
+      the variable name of your Flask instance).
 
-3.  **Configure Nginx/Apache (Recommended):**
+3. **Configure Nginx/Apache (Recommended):**
 
-    Set up Nginx or Apache as a reverse proxy in front of Gunicorn. This provides several benefits:
+   Set up Nginx or Apache as a reverse proxy in front of Gunicorn. This provides several benefits:
 
-    *   **SSL/TLS Termination:** Handle HTTPS encryption (essential for security).
-    *   **Static File Serving:** Serve static files (CSS, JavaScript) directly, which is more efficient.
-    *   **Load Balancing:**  Distribute traffic across multiple Gunicorn workers.
-    *   **Security:**  Protect your application from common web attacks.
+    * **SSL/TLS Termination:** Handle HTTPS encryption (essential for security).
+    * **Static File Serving:** Serve static files (CSS, JavaScript) directly, which is more efficient.
+    * **Load Balancing:**  Distribute traffic across multiple Gunicorn workers.
+    * **Security:**  Protect your application from common web attacks.
 
-    Configuring a reverse proxy is beyond the scope of this README, but there are many online resources available for setting up Nginx or Apache with Gunicorn and Flask.
+   Configuring a reverse proxy is beyond the scope of this README, but there are many online resources available for
+   setting up Nginx or Apache with Gunicorn and Flask.
 
 ## Security Considerations
 
-*   **Change Default Credentials:**  Immediately change the default admin password in `config.json`.
-*   **Use a Strong Secret Key:** Generate a long, random `SECRET_KEY`.
-*   **HTTPS:**  Use HTTPS (SSL/TLS) in a production environment.  This is *essential* for protecting passwords and uploaded data.
-*   **Rate Limiting:**  Consider implementing rate limiting (e.g., using Flask-Limiter) to prevent abuse of the upload endpoint.
-*   **File Type Validation:**  If you only want to allow specific file types, add validation logic to the `/upload` route.
-*   **Regular Updates:**  Keep Flask, Werkzeug, and other dependencies updated to patch security vulnerabilities.
+* **Change Default Credentials:**  Immediately change the default admin password in `config.json`.
+* **Use a Strong Secret Key:** Generate a long, random `SECRET_KEY`.
+* **HTTPS:**  Use HTTPS (SSL/TLS) in a production environment. This is *essential* for protecting passwords and uploaded
+  data.
+* **Rate Limiting:**  Consider implementing rate limiting (e.g., using Flask-Limiter) to prevent abuse of the upload
+  endpoint.
+* **File Type Validation:**  If you only want to allow specific file types, add validation logic to the `/upload` route.
+* **Regular Updates:**  Keep Flask, Werkzeug, and other dependencies updated to patch security vulnerabilities.
 * **Secure file storage:** Ensure the folder you are uploading to has correct permissions and is well protected.
 
 ## Contributing
