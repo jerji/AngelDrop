@@ -30,9 +30,9 @@ def get_available_space(path):
     return statvfs.f_frsize * statvfs.f_bavail
 
 
-def check_credentials(username, password):
-    user = get_user(get_db(), username)
-    if user and check_password_hash(user['password_hash'], password):
+def check_credentials(user, passw):
+    user = get_user(get_db(), user)
+    if user and check_password_hash(user['password_hash'], passw):
         return True
     return False
 
@@ -55,11 +55,11 @@ def inject_is_link_expired():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if check_credentials(username, password):
+        user = request.form['username']
+        passw = request.form['password']
+        if check_credentials(user, passw):
             session['logged_in'] = True
-            session['username'] = username
+            session['username'] = user
             return redirect(url_for('admin'))
         else:
             flash('Invalid credentials', 'error')
@@ -81,7 +81,7 @@ def admin():
     if request.method == 'POST':
         folder_path = request.form['folder_path']
         folder_path = folder_path.rstrip('/')
-        password = request.form.get('password')  # Use .get() for optional fields
+        passwd = request.form.get('password')  # Use .get() for optional fields
         expiry = request.form.get('expiry')
 
         if not os.path.isdir(folder_path):
@@ -102,7 +102,7 @@ def admin():
                 flash('Invalid expiry format. Use YYYY-MM-DDTHH:MM', 'error')
                 return redirect(url_for('admin'))
 
-        token = create_link(get_db(), folder_path, password, expiry_timestamp)
+        token = create_link(get_db(), folder_path, passwd, expiry_timestamp)
         flash(f'Link created: {request.url_root}upload/{token}', 'success')
         return redirect(url_for('admin', _anchor='links'))
 
@@ -180,9 +180,9 @@ def upload(token):
 # --- Initialization ---
 with app.app_context():
     init_db(app)
-    db = get_db()
+    database = get_db()
     for username, password in config["users"].items():
-        add_user(db, username, password)
+        add_user(database, username, password)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
