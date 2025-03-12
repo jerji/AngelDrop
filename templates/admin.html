@@ -55,7 +55,6 @@
     <!-- ... (rest of your table from before) ... -->
     <thead>
     <tr>
-        <th>ID</th>
         <th>Token</th>
         <th>Folder Path</th>
         <th>Password Protected</th>
@@ -67,7 +66,6 @@
     <tbody>
     {% for link in links %}
     <tr>
-        <td>{{ link['id'] }}</td>
         <td>{{ link['token'] }}</td>
         <td>{{ link['folder_path'] }}</td>
         <td class="{% if link['password_hash'] %}password-protected{% endif %}">
