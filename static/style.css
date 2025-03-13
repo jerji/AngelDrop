@@ -29,24 +29,24 @@
 /* Dark Theme */
 @media (prefers-color-scheme: dark) {
     :root {
-        --body-bg: #121212;
-        --container-bg: #1e1e1e;
-        --text-color: #000000;
-        --heading-color: #9cb4cc;
+        --body-bg: #121212;  /* Dark gray */
+        --container-bg: #1e1e1e; /* Slightly lighter dark gray */
+        --text-color: #eee;      /* Light gray */
+        --heading-color: #9cb4cc; /* Lighter blue */
         --input-border: #555;
-        --button-bg: #3a4f63;
+        --button-bg: #3a4f63;   /* Darker blue */
         --button-hover-bg: #5c85a3;
         --table-header-bg: #333;
         --table-border: #555;
         --drop-area-bg: #333;
         --drop-area-border: #777;
-        --flash-success-color: #fff;
+        --flash-success-color: #000;
         --flash-error-bg: #f44336;
         --flash-error-border: #d32f2f;
         --flash-error-color: #fff;
         --delete-button-bg: #c62828;
-        --delete-button-hover-bg: #e53935;
-        --link-color: #add8e6;
+        --delete-button-hover-bg: #e53935;  /* Slightly lighter red */
+        --link-color: #add8e6; /* Light blue for dark theme */
     }
 }
 
