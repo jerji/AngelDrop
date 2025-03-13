@@ -29,12 +29,12 @@
 /* Dark Theme */
 @media (prefers-color-scheme: dark) {
     :root {
-        --body-bg: #121212;  /* Dark gray */
-        --container-bg: #1e1e1e; /* Slightly lighter dark gray */
-        --text-color: #eee;      /* Light gray */
-        --heading-color: #9cb4cc; /* Lighter blue */
+        --body-bg: #121212;
+        --container-bg: #1e1e1e;
+        --text-color: #000000;
+        --heading-color: #9cb4cc;
         --input-border: #555;
-        --button-bg: #3a4f63;   /* Darker blue */
+        --button-bg: #3a4f63;
         --button-hover-bg: #5c85a3;
         --table-header-bg: #333;
         --table-border: #555;
@@ -45,8 +45,8 @@
         --flash-error-border: #d32f2f;
         --flash-error-color: #fff;
         --delete-button-bg: #c62828;
-        --delete-button-hover-bg: #e53935;  /* Slightly lighter red */
-        --link-color: #add8e6; /* Light blue for dark theme */
+        --delete-button-hover-bg: #e53935;
+        --link-color: #add8e6;
     }
 }
 
@@ -217,6 +217,14 @@ td:nth-child(6) {
 #file-list div {
     padding: 8px;
     border-bottom: 1px solid #eee;
+}
+#progress-bar {
+    width: 100%;
+    text-align: center;
+    color: white;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 /* Make it responsive */
