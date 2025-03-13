@@ -41,7 +41,11 @@ specific folders on your server. It prioritizes security and ease of use.
 angelDrop/
 ├── app.py                    # Main application file
 ├── database.py               # Database operations
+├── models.py                 # Placeholder
 ├── config.json               # Configuration file (create from example)
+├── schema.sql                # Database Schema
+├── README.md                 # This file :P
+├── LICENCE                   # Copy of the MIT licence
 │
 ├── lib/                      # Auxiliary files
 │   ├── config.example.json   # Example configuration
