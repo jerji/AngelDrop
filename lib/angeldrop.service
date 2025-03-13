@@ -3,8 +3,8 @@ Description=Angel Drop File Dropper
 After=network.target
 
 [Service]
-User=syncthing
-Group=syncthing
+User=your_user
+Group=your_user
 WorkingDirectory=/opt/AngelDrop
 ExecStart=/opt/AngelDrop/venv/bin/gunicorn -b 0.0.0.0:5000 -w 4 --timeout 600 app:app
 Restart=always

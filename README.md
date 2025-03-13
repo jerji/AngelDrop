@@ -1,4 +1,4 @@
-# AngelDrop - Simple File Dropper.
+# AngelDrop - Simple File Dropper
 
 ## BIG, BOLD, SHAMEFUL WARNING!
 
@@ -10,152 +10,292 @@ SIN OF AI ASSISTANCE REMAINS.**  Consider contributing improvements or rewriting
 The goal was to provide a functional tool, and hopefully, the end result is helpful despite its origins. My apologies.
 
 ---
+
+## Overview
+
 AngelDrop is a self-hosted file-sharing tool built with Python (Flask) that allows you to easily create upload links for
-specific folders on your server. It prioritizes security and ease of use, providing features like:
+specific folders on your server. It prioritizes security and ease of use.
 
-* **Secure Uploads:**  Uses strong password hashing, random token generation, and prevents directory traversal.
-* **Per-Folder Links:**  Generate unique, opaque links for different folders. Users cannot change the destination
-  folder.
-* **Password Protection (Optional):**  Add password protection to individual upload links.
-* **Expiry Times (Optional):** Set expiration times for upload links.
-* **Admin Interface:** A simple web interface to manage links (create, delete, copy to clipboard), with
-  password-protected login.
-* **Drag-and-Drop Upload:**  Drag and drop files anywhere on the upload page, or use a traditional file picker.
-* **Multiple File Uploads:**  Supports uploading multiple files at once.
-* **Disk Space Checks:**  Verifies sufficient disk space before accepting uploads.
-* **SQLite Database:** Uses SQLite for easy setup and deployment (suitable for small to medium-scale use).
-* **Responsive Design:** Works well on both desktop and mobile devices.
+### Key Features
 
-## Requirements
+* **Secure Uploads:** Uses strong password hashing, random token generation, and prevents directory traversal
+* **Per-Folder Links:** Generate unique, opaque links for different folders
+* **Password Protection:** Add optional password protection to individual upload links
+* **Expiry Times:** Set optional expiration times for upload links
+* **Admin Interface:** Web interface to manage links with password-protected login
+* **Drag-and-Drop Upload:** Simple interface for uploading files
+* **Multiple File Uploads:** Support for uploading multiple files at once
+* **Disk Space Checks:** Verification of sufficient disk space before accepting uploads
+* **SQLite Database:** Simple database for easy setup and deployment
+* **Responsive Design:** Works well on both desktop and mobile devices
+
+## System Requirements
 
 * Python 3.7+
 * pip
-* A system where you can run python code
+* Linux, macOS, or Windows operating system
 
-## Installation and Setup
+## File Structure
 
-1. **Create a Virtual Environment (Recommended):**
+```
+angelDrop/
+├── app.py                    # Main application file
+├── database.py               # Database operations
+├── config.json               # Configuration file (create from example)
+│
+├── lib/                      # Auxiliary files
+│   ├── config.example.json   # Example configuration
+│   ├── angeldrop.nginx.conf  # Example Nginx configuration
+│   └── angeldrop.service     # Example systemd service file
+│
+├── static/                   # Static assets (CSS, JavaScript)
+│   ├── script.js             # Main Javascript File
+│   └── style.css             # Main CSS file
+│
+├── templates/                # HTML templates
+│   ├── admin.html            # Template for admin page
+│   ├── base.html             # Base template
+│   ├── login.html            # Template for login page
+│   └── upload.html           # Templade for public upload page
+│
+└── db/                       # Database directory (created automatically)
+    └── uploader.db           # SQLite database (created automatically)
+```
 
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate  # On Linux/macOS
-    .venv\Scripts\activate    # On Windows
-    ```
+## Installation
 
-2. **Install Dependencies:**
+### 1. Clone the Repository
 
-        ```bash
-        pip install flask werkzeug
-        ```
+```bash
+git clone https://github.com/yourusername/angelDrop.git
+cd angelDrop
+```
 
-3. **Configure `config.json`:**
+### 2. Create a Virtual Environment
 
-    * Create a file named `config.json` in the `file_uploader` directory.
-    * Copy the file from lib/config.example.json to config.json and replace the placeholder values.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate  # On Linux/macOS
+# OR
+.venv\Scripts\activate     # On Windows
+```
 
-    - - **`users`:**  Add your desired admin username(s) and password(s) here.  *Change the default password immediately!*
-      This is crucial for security.
-   - - **`BASE_PATH`:** The base path that this app will use as it's root. using `/` will be the entire system.
-   - - **`SECRET_KEY`:** Generate a strong, random secret key. You can use a command like this in your terminal:
+### 3. Install Dependencies
 
-      ```bash
-      python -c 'import secrets; print(secrets.token_hex(32))'
-      ```
+```bash
+pip install flask werkzeug
+```
 
-      Copy the output and paste it as the value for `SECRET_KEY`. This key is essential for securing your application (
-      session management, etc.).
+### 4. Configure the Application
 
-4. **Run the Application:**
+Create a configuration file by copying the example:
 
-    ```bash
-    python app.py
-    ```
+```bash
+cp lib/config.example.json config.json
+```
 
-5. **Access the Application:**
+Edit `config.json` with your settings:
 
-    * **Admin Panel:** Open your web browser and go to `http://127.0.0.1:5000/admin`. Log in with the credentials you
-      set in `config.json`.
-    * **Upload Links:** Create upload links in the admin panel. These links will be of the form
-      `http://127.0.0.1:5000/upload/<unique_token>`.
+```json
+{
+  "users": {
+    "admin": "password123"
+  },
+  "BASE_PATH": "/tmp",
+  "SECRET_KEY": "SUPER-SECRET-KEY-REPLACEME"
+}
+
+```
+
+Key configuration items:
+
+* **`SECRET_KEY`**: Generate a strong random key using:
+  ```bash
+  python -c 'import secrets; print(secrets.token_hex(32))'
+  ```
+
+* **`BASE_PATH`**: Root directory for file operations. Using `/` grants access to the entire system (not recommended for production).
+
+* **`users`**: Admin username(s) and password(s). **Change the default password immediately!**
+
+### 5. Run the Application (Development Only)
+
+```bash
+python app.py
+```
 
 ## Usage
 
-1. **Admin Panel:**
-    * Log in to the admin panel (`/admin`).
-    * **Create Links:** Enter the *full, absolute path* to the folder you want to create an upload link for. Optionally,
-      set a password and/or an expiry time (in `YYYY-MM-DDTHH:MM` format). Click "Create Link".
-    * **Manage Links:**  View existing links, copy them to your clipboard, or delete them. Expired links are highlighted
-      in red.
-    * **Clean up Links:** Provides an eazy way do clean up expired links and links where the folder was deleted.
-2. **Uploading Files:**
-    * Visit an upload link.
-    * If the link is password-protected, enter the password.
-    * Drag and drop files onto the page, or click "Select files" to use the file picker.
-    * Multiple files can be uploaded simultaneously.
+### Admin Panel
 
-## Deployment (Important!)
+1. Access the admin panel at `http://your-server:5000/admin`
+2. Log in with credentials from your `config.json`
+3. Create upload links:
+   - Enter the absolute path to your target folder
+   - Optionally set a password
+   - Optionally set an expiry time (format: `YYYY-MM-DDTHH:MM`)
+4. Manage existing links:
+   - Copy links to clipboard
+   - Delete links
+   - Clean up expired or invalid links
 
-**Do *not* use the built-in Flask development server (`python app.py`) for production deployments.** It's not designed
-for security or performance in a real-world setting.
+### Uploading Files
 
-For production, you should use a proper WSGI server like **Gunicorn** or **uWSGI**, along with a reverse proxy like *
-*Nginx** or **Apache**. Here's a basic example using Gunicorn:
+1. Visit a generated upload link (`http://your-server:5000/upload/<token>`)
+2. Enter the password if required
+3. Upload files by:
+   - Dragging and dropping onto the page
+   - Clicking "Select files" to use the file picker
+4. Multiple files can be uploaded simultaneously
 
-1. **Install Gunicorn:**
+## Production Deployment
 
-   ```bash
-   pip install gunicorn
-   ```
+### Important: Do NOT use the built-in Flask server in production!
 
-2. **Run with Gunicorn:**
+For production environments, use a proper WSGI server with a reverse proxy:
 
-   ```bash
-   gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
-   ```
+### 1. Install Gunicorn
 
-    * `--workers 3`:  Specifies the number of worker processes (adjust based on your server's resources).
-    * `--bind 0.0.0.0:8000`:  Binds to all interfaces on port 8000 (you can change the port).
-    * `app:app`:  Tells Gunicorn where to find your Flask application (`app` is the filename, and the second `app` is
-      the variable name of your Flask instance).
-
-3. **Configure Nginx/Apache (Recommended):**
-
-   Set up Nginx or Apache as a reverse proxy in front of Gunicorn. This provides several benefits:
-
-    * **SSL/TLS Termination:** Handle HTTPS encryption (essential for security).
-    * **Static File Serving:** Serve static files (CSS, JavaScript) directly, which is more efficient.
-    * **Load Balancing:**  Distribute traffic across multiple Gunicorn workers.
-    * **Security:**  Protect your application from common web attacks.
-
-I had to add these to the http block of the nginx config. Mileage may vary.
-```yaml
-    http{
-    
-        client_max_body_size 100M;  # Adjust this as needed (e.g., 100MB, 1G)
-        client_body_timeout 600s;   # Time to receive the entire request body
-        send_timeout 600s;         # Time to send data to the client
-        proxy_read_timeout 600s;   # Time to wait for a response from the upstream server (Gunicorn)
-        proxy_send_timeout 600s;   # Time to send a request to the upstream server
-        keepalive_timeout 75s;     # Keep-alive connections timeout
-
-        # If using HTTPS
-        ssl_session_timeout 10m;
-    }
+```bash
+pip install gunicorn
 ```
 
-I have provided an example systemd service file and nginx config file in `/lib`
+### 2. Run with Gunicorn
 
-## Security Considerations
+```bash
+gunicorn --workers 3 --bind 0.0.0.0:5000 app:app
+```
 
-* **Change Default Credentials:**  Immediately change the default admin password in `config.json`.
-* **Use a Strong Secret Key:** Generate a long, random `SECRET_KEY`.
-* **HTTPS:**  Use HTTPS (SSL/TLS) in a production environment. This is *essential* for protecting passwords and uploaded
-  data.
-* **Rate Limiting:**  Consider implementing rate limiting (e.g., using Flask-Limiter) to prevent abuse of the upload
-  endpoint.
-* **File Type Validation:**  If you only want to allow specific file types, add validation logic to the `/upload` route.
-* **Regular Updates:**  Keep Flask, Werkzeug, and other dependencies updated to patch security vulnerabilities.
-* **Secure file storage:** Ensure the folder you are uploading to has correct permissions and is well protected.
+### 3. Configure Nginx as a Reverse Proxy
+
+Create an Nginx configuration (example in `lib/angeldrop.nginx.conf`):
+
+```nginx
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name upload.example.com;
+
+    access_log /var/log/nginx/angeldrop.access.log combined;
+    error_log /var/log/nginx/angeldrop.error.log warn;
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    proxy_buffer_size   128k;
+    proxy_buffers   4 256k;
+    proxy_busy_buffers_size   256k;
+    client_max_body_size 20000M;
+
+
+    location /login {
+        proxy_pass http://localhost:5000/login;
+        allow 192.168.0.0/16;
+        deny all;
+    }
+
+    location /admin {
+        proxy_pass http://localhost:5000/admin;
+        allow 192.168.0.0/16;
+        deny all;
+    }
+
+    location = /logout {
+        proxy_pass http://localhost:5000/logout;
+        allow 192.168.0.0/16;
+        deny all;
+
+    }
+
+    location /upload {
+        proxy_pass http://localhost:5000/upload;
+   }
+
+
+   location /static {
+        proxy_pass http://localhost:5000/static;
+   }
+
+}
+```
+This config is separated to assure only people on the local network can access admin pages.
+
+### 4. Nginx Performance Settings
+
+Add to the `http` block in your Nginx configuration:
+
+```nginx
+http {
+    client_max_body_size 100M;  # Adjust as needed
+    client_body_timeout 600s;   # Time to receive request body
+    send_timeout 600s;          # Time to send data to client
+    proxy_read_timeout 600s;    # Time to wait for upstream response
+    proxy_send_timeout 600s;    # Time to send request upstream
+    keepalive_timeout 75s;      # Keep-alive timeout
+    
+    # If using HTTPS
+    ssl_session_timeout 10m;
+}
+```
+
+### 5. Set Up as a Systemd Service
+
+Create a systemd service file (example in `lib/angeldrop.service`):
+
+```ini
+[Unit]
+Description=Angel Drop File Dropper
+After=network.target
+
+[Service]
+User=your_user
+Group=your_user
+WorkingDirectory=/opt/AngelDrop
+ExecStart=/opt/AngelDrop/venv/bin/gunicorn -b 0.0.0.0:5000 -w 4 --timeout 600 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+Enable and start the service:
+
+```bash
+sudo cp lib/angeldrop.service /etc/systemd/system/angeldrop.service
+sudo systemctl daemon-reload
+sudo systemctl enable angeldrop
+sudo systemctl start angeldrop
+```
+
+## Security Best Practices
+
+* **Change Default Credentials:** Update the admin password immediately
+* **Use HTTPS:** Always use SSL/TLS in production
+* **Restrict BASE_PATH:** Never use `/` as BASE_PATH in production
+* **Regular Updates:** Keep all dependencies updated
+* **File Permissions:** Ensure upload directories have appropriate permissions
+* **Firewall Configuration:** Restrict access to the application server
+* **Rate Limiting:** Consider implementing rate limiting to prevent abuse
+* **Backup Strategy:** Regularly backup your database and configuration
+* **Audit Logs:** Monitor access and upload activity
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database Errors**
+   - Check that the `db` directory exists and is writable
+   - Verify database permissions
+
+2. **Upload Failures**
+   - Check available disk space
+   - Verify folder permissions
+   - Check file size limits in both the application and Nginx
+
+3. **Link Expiration Issues**
+   - Verify server time is correct
+   - Check for time zone discrepancies
 
 ## Contributing
 
@@ -163,4 +303,4 @@ Contributions are welcome! Please submit pull requests or open issues on the rep
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details
+This project is licensed under the MIT License - see the LICENSE file for details.
