@@ -1,175 +1,133 @@
-let dropArea = document.getElementById('drop-area');
-let fileElem = document.getElementById('fileElem');
-let progressBar = document.getElementById('progress-bar');
-let fileList = document.getElementById('file-list');
-let uploadForm = document.getElementById('upload-form');
-let stagedFiles = []; // Array to store staged files
-let writingStatus = document.getElementById('writing-status'); // Get the writing status element
-let dots = document.getElementById('dots'); // Get the dots element
+/**
+ * File Upload Handler
+ * Manages the drag-and-drop file upload interface, file staging, and form submission.
+ */
 
-;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    document.addEventListener(eventName, preventDefaults, false);
-});
+// Global variables for UI elements
+const dropArea = document.getElementById('drop-area');
+const fileElem = document.getElementById('fileElem');
+const progressBar = document.getElementById('progress-bar');
+const fileList = document.getElementById('file-list');
+const uploadForm = document.getElementById('upload-form');
+const writingStatus = document.getElementById('writing-status');
+const dots = document.getElementById('dots');
 
+// Array to store files staged for upload
+let stagedFiles = [];
+let dotInterval; // For animating the writing status dots
+
+/**
+ * Initialize event listeners for drag and drop functionality
+ */
+function initializeDragAndDrop() {
+    // Prevent default behaviors for drag events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        document.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    // Highlight drop area when dragging over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        document.addEventListener(eventName, highlight, false);
+    });
+    
+    // Remove highlight when leaving drop area or after drop
+    ['dragleave', 'drop'].forEach(eventName => {
+        document.addEventListener(eventName, unhighlight, false);
+    });
+    
+    // Handle file drop
+    document.addEventListener('drop', handleDrop, false);
+}
+
+/**
+ * Prevent default behaviors for events
+ */
 function preventDefaults(e) {
     e.preventDefault();
     e.stopPropagation();
 }
 
-;['dragenter', 'dragover'].forEach(eventName => {
-    document.addEventListener(eventName, highlight, false);
-});
-
-;['dragleave', 'drop'].forEach(eventName => {
-    document.addEventListener(eventName, unhighlight, false);
-});
-
+/**
+ * Highlight the drop area when dragging over it
+ */
 function highlight(e) {
-    if (dropArea)
+    if (dropArea) {
         dropArea.classList.add('highlight');
+    }
 }
 
+/**
+ * Remove highlight from drop area
+ */
 function unhighlight(e) {
-    if (dropArea)
+    if (dropArea) {
         dropArea.classList.remove('highlight');
+    }
 }
 
-document.addEventListener('drop', handleDrop, false);
-
+/**
+ * Handle file drop event
+ */
 function handleDrop(e) {
     let dt = e.dataTransfer;
     let files = dt.files;
     handleFiles(files);
 }
 
+/**
+ * Process files from drop or file input
+ * @param {FileList} files - Files to be processed
+ */
 function handleFiles(files) {
     // Add files to the stagedFiles array
     stagedFiles = stagedFiles.concat([...files]);
-
-    // Display file names and "Ready for Upload" status
+    
+    // Update UI to show staged files
     renderFileList();
 }
 
+/**
+ * Render the list of staged files in the UI
+ */
 function renderFileList() {
     // Clear the existing file list
     fileList.innerHTML = "";
-
-    stagedFiles.forEach((file, index) => { // Add index
+    
+    // Add each file to the list with a remove button
+    stagedFiles.forEach((file, index) => {
         let fileItem = document.createElement('div');
-        fileItem.classList.add('file-item'); // Add a class for styling
-
+        fileItem.classList.add('file-item');
+        
         let fileName = document.createElement('span');
         fileName.textContent = `${file.name} (Ready for Upload)`;
         fileItem.appendChild(fileName);
-
+        
         let removeButton = document.createElement('span');
         removeButton.textContent = 'X';
-        removeButton.classList.add('remove-button'); // Add a class for styling
-        removeButton.addEventListener('click', () => removeFile(index)); // Pass index
+        removeButton.classList.add('remove-button');
+        removeButton.addEventListener('click', () => removeFile(index));
         fileItem.appendChild(removeButton);
-
+        
         fileList.appendChild(fileItem);
     });
-    // Show the upload button if there are staged files, otherwise hide it
-    document.getElementById("submit-button").style.display = stagedFiles.length > 0 ? "block" : "none";
+    
+    // Show or hide the upload button based on whether there are files to upload
+    document.getElementById("submit-button").style.display = 
+        stagedFiles.length > 0 ? "block" : "none";
 }
 
-
+/**
+ * Remove a file from the staged files list
+ * @param {number} index - Index of file to remove
+ */
 function removeFile(index) {
-    stagedFiles.splice(index, 1); // Remove the file at the given index
-    renderFileList(); // Re-render the file list
+    stagedFiles.splice(index, 1);
+    renderFileList();
 }
 
-// Prevent the default form submission behavior
-uploadForm.addEventListener('submit', function (event) {
-    event.preventDefault();  // Prevent the default form submission
-
-    // Now handle the upload using FormData and XMLHttpRequest
-    let formData = new FormData();
-    stagedFiles.forEach(file => {
-        formData.append('file', file);
-    });
-
-    // Append password if required
-    if (document.getElementById('link_password')) {
-        formData.append('link_password', document.getElementById('link_password').value);
-    }
-
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', window.location.href, true);
-
-    // Progress event listener
-    xhr.upload.addEventListener('progress', function (e) {
-        if (e.lengthComputable) {
-            progressBar.value = (e.loaded / e.total) * 100;
-             // Change progress bar color when it reaches 100%
-            if (progressBar.value === 100) {
-                progressBar.classList.add('writing'); // Add the 'writing' class
-                writingStatus.style.display = 'block'; // Show writing status
-                animateDots(); // Start the animation
-            }
-        }
-    });
-
-    xhr.onload = function () {
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Handle successful upload
-            console.log('Success:', xhr.responseText);
-            // Reset progress bar and writing status
-            progressBar.value = 0;
-            progressBar.classList.remove('writing'); //remove class
-            writingStatus.style.display = 'none';
-            stopAnimateDots(); // Stop the dots
-
-            fileList.innerHTML = ""; // Clear file list
-            stagedFiles = [];     // Clear staged files
-            document.getElementById("submit-button").style.display = "none";
-
-
-            //Find flashed message and display it.
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(xhr.responseText, 'text/html');
-            let flashMessage = doc.querySelector('.flash-messages');
-
-            if (flashMessage) {
-                document.querySelector('.container').prepend(flashMessage);
-            } else {
-                window.location.reload();
-            }
-
-        } else {
-            // Handle upload error
-            console.error('Error:', xhr.status, xhr.statusText);
-            // Reset progress bar and writing status
-            progressBar.value = 0;
-             progressBar.classList.remove('writing'); //remove class
-            writingStatus.style.display = 'none';
-            stopAnimateDots(); // Stop dots
-
-            fileList.innerHTML = ""; // Clear file list
-            stagedFiles = [];     // Clear staged files
-            document.getElementById("submit-button").style.display = "none";  // Hide upload button
-        }
-    };
-
-    xhr.onerror = function () {
-        // Handle network errors
-        console.error('Network Error');
-        // Reset progress bar and writing status
-        progressBar.value = 0;
-        progressBar.classList.remove('writing');
-        writingStatus.style.display = 'none';
-        stopAnimateDots(); // Stop the dots
-        fileList.innerHTML = "";
-        stagedFiles = [];
-        document.getElementById("submit-button").style.display = "none";
-    };
-
-    xhr.send(formData);
-});
-
-let dotInterval; // Variable to hold the interval ID
-
+/**
+ * Animate dots for the "Writing to disk" status
+ */
 function animateDots() {
     let dotCount = 0;
     dotInterval = setInterval(() => {
@@ -178,7 +136,109 @@ function animateDots() {
     }, 500); // Change every 500ms
 }
 
+/**
+ * Stop the dots animation
+ */
 function stopAnimateDots() {
     clearInterval(dotInterval);
-    dots.textContent = ''; // Clear dots
+    dots.textContent = '';
 }
+
+/**
+ * Handle form submission for file uploads
+ * @param {Event} event - Form submission event
+ */
+function handleFormSubmit(event) {
+    event.preventDefault();  // Prevent the default form submission
+    
+    // Create FormData object to send files
+    let formData = new FormData();
+    stagedFiles.forEach(file => {
+        formData.append('file', file);
+    });
+    
+    // Add password if provided
+    const passwordField = document.getElementById('link_password');
+    if (passwordField) {
+        formData.append('link_password', passwordField.value);
+    }
+    
+    // Create and configure XHR request
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', window.location.href, true);
+    
+    // Track upload progress
+    xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+            const percentComplete = (e.loaded / e.total) * 100;
+            progressBar.value = percentComplete;
+            
+            // Show writing status when upload is complete
+            if (percentComplete === 100) {
+                progressBar.classList.add('writing');
+                writingStatus.style.display = 'block';
+                animateDots();
+            }
+        }
+    });
+    
+    // Handle successful response
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            console.log('Success:', xhr.responseText);
+            
+            // Reset UI elements
+            resetUploadUI();
+            
+            // Display flash messages if any
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(xhr.responseText, 'text/html');
+            let flashMessage = doc.querySelector('.flash-messages');
+            
+            if (flashMessage) {
+                document.querySelector('.container').prepend(flashMessage);
+            } else {
+                window.location.reload();
+            }
+        } else {
+            // Handle error
+            console.error('Error:', xhr.status, xhr.statusText);
+            resetUploadUI();
+        }
+    };
+    
+    // Handle network errors
+    xhr.onerror = function() {
+        console.error('Network Error');
+        resetUploadUI();
+    };
+    
+    // Send the request
+    xhr.send(formData);
+}
+
+/**
+ * Reset the upload UI after upload completion or error
+ */
+function resetUploadUI() {
+    progressBar.value = 0;
+    progressBar.classList.remove('writing');
+    writingStatus.style.display = 'none';
+    stopAnimateDots();
+    fileList.innerHTML = "";
+    stagedFiles = [];
+    document.getElementById("submit-button").style.display = "none";
+}
+
+// Initialize the application
+function init() {
+    initializeDragAndDrop();
+    
+    // Set up form submission handler
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', handleFormSubmit);
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', init);
