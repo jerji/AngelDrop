@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 import time
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
@@ -10,8 +11,13 @@ from database import get_link_by_path, create_link, delete_db_link, is_link_expi
 app = Flask(__name__)
 
 # Load configuration from file
-with open('config.json', 'r') as f:
-    config = json.load(f)
+#check if config file exists
+if os.path.exists('config.json'):
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+else:
+    print('config.json not found', file=sys.stderr)
+    exit(1)
 app.config['SECRET_KEY'] = config['SECRET_KEY']
 
 # Configure base path
