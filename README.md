@@ -127,8 +127,21 @@ For production, you should use a proper WSGI server like **Gunicorn** or **uWSGI
     * **Load Balancing:**  Distribute traffic across multiple Gunicorn workers.
     * **Security:**  Protect your application from common web attacks.
 
-   Configuring a reverse proxy is beyond the scope of this README, but there are many online resources available for
-   setting up Nginx or Apache with Gunicorn and Flask.
+I had to add these to the http block of the nginx config. Mileage may vary.
+```yaml
+    http{
+    
+        client_max_body_size 100M;  # Adjust this as needed (e.g., 100MB, 1G)
+        client_body_timeout 600s;   # Time to receive the entire request body
+        send_timeout 600s;         # Time to send data to the client
+        proxy_read_timeout 600s;   # Time to wait for a response from the upstream server (Gunicorn)
+        proxy_send_timeout 600s;   # Time to send a request to the upstream server
+        keepalive_timeout 75s;     # Keep-alive connections timeout
+
+        # If using HTTPS
+        ssl_session_timeout 10m;
+    }
+```
 
 I have provided an example systemd service file and nginx config file in `/lib`
 
