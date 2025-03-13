@@ -24,6 +24,9 @@
     --copy-button-bg: #28a745;
     --copy-button-hover-bg: #218838;
     --link-color: #007bff; /* Default link color (light theme) */
+    --progress-bar-bg: #007bff; /* Default progress bar color */
+    --progress-bar-writing-bg: #ffc107;  /* Writing to disk color */
+
 }
 
 /* Dark Theme */
@@ -226,6 +229,34 @@ td:nth-child(6) {
     -moz-appearance: none;
     appearance: none;
 }
+
+/* Progress Bar Styles */
+#progress-bar {
+  width: 100%;
+  height: 20px; /* Set a height for the bar */
+  background-color: #ddd; /* Background color */
+  border-radius: 10px; /* Rounded corners */
+  overflow: hidden; /* Ensure the progress fill doesn't overflow */
+}
+#progress-bar::-webkit-progress-bar {
+    background-color: #eee;
+}
+
+#progress-bar::-webkit-progress-value {
+  background-color: var(--progress-bar-bg); /* Default progress color */
+  transition: width 0.3s ease; /* Smooth transition for width changes */
+}
+#progress-bar::-moz-progress-bar{
+    background-color: var(--progress-bar-bg);
+    transition: width 0.3s ease;
+}
+#progress-bar.writing::-webkit-progress-value {
+    background-color: var(--progress-bar-writing-bg); /* Color when writing */
+}
+#progress-bar.writing::-moz-progress-bar {
+  background-color: var(--progress-bar-writing-bg); /* Color when writing */
+}
+
 
 /* Make it responsive */
 @media (max-width: 768px) {

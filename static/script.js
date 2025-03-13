@@ -4,6 +4,8 @@ let progressBar = document.getElementById('progress-bar');
 let fileList = document.getElementById('file-list');
 let uploadForm = document.getElementById('upload-form');
 let stagedFiles = []; // Array to store staged files
+let writingStatus = document.getElementById('writing-status'); // Get the writing status element
+let dots = document.getElementById('dots'); // Get the dots element
 
 ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     document.addEventListener(eventName, preventDefaults, false);
@@ -100,6 +102,12 @@ uploadForm.addEventListener('submit', function (event) {
     xhr.upload.addEventListener('progress', function (e) {
         if (e.lengthComputable) {
             progressBar.value = (e.loaded / e.total) * 100;
+             // Change progress bar color when it reaches 100%
+            if (progressBar.value === 100) {
+                progressBar.classList.add('writing'); // Add the 'writing' class
+                writingStatus.style.display = 'block'; // Show writing status
+                animateDots(); // Start the animation
+            }
         }
     });
 
@@ -107,10 +115,16 @@ uploadForm.addEventListener('submit', function (event) {
         if (xhr.status >= 200 && xhr.status < 300) {
             // Handle successful upload
             console.log('Success:', xhr.responseText);
+            // Reset progress bar and writing status
+            progressBar.value = 0;
+            progressBar.classList.remove('writing'); //remove class
+            writingStatus.style.display = 'none';
+            stopAnimateDots(); // Stop the dots
+
             fileList.innerHTML = ""; // Clear file list
             stagedFiles = [];     // Clear staged files
             document.getElementById("submit-button").style.display = "none";
-            progressBar.value = 0; // Reset progress bar
+
 
             //Find flashed message and display it.
             const parser = new DOMParser();
@@ -126,21 +140,45 @@ uploadForm.addEventListener('submit', function (event) {
         } else {
             // Handle upload error
             console.error('Error:', xhr.status, xhr.statusText);
+            // Reset progress bar and writing status
+            progressBar.value = 0;
+             progressBar.classList.remove('writing'); //remove class
+            writingStatus.style.display = 'none';
+            stopAnimateDots(); // Stop dots
+
             fileList.innerHTML = ""; // Clear file list
             stagedFiles = [];     // Clear staged files
             document.getElementById("submit-button").style.display = "none";  // Hide upload button
-            progressBar.value = 0;
         }
     };
 
     xhr.onerror = function () {
         // Handle network errors
         console.error('Network Error');
+        // Reset progress bar and writing status
+        progressBar.value = 0;
+        progressBar.classList.remove('writing');
+        writingStatus.style.display = 'none';
+        stopAnimateDots(); // Stop the dots
         fileList.innerHTML = "";
         stagedFiles = [];
         document.getElementById("submit-button").style.display = "none";
-        progressBar.value = 0;
     };
 
     xhr.send(formData);
 });
+
+let dotInterval; // Variable to hold the interval ID
+
+function animateDots() {
+    let dotCount = 0;
+    dotInterval = setInterval(() => {
+        dotCount = (dotCount + 1) % 4; // Cycle through 0-3
+        dots.textContent = '.'.repeat(dotCount);
+    }, 500); // Change every 500ms
+}
+
+function stopAnimateDots() {
+    clearInterval(dotInterval);
+    dots.textContent = ''; // Clear dots
+}
