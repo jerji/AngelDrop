@@ -71,7 +71,7 @@ specific folders on your server. It prioritizes security and ease of use, provid
     python app.py
     ```
 
-7. **Access the Application:**
+5. **Access the Application:**
 
     * **Admin Panel:** Open your web browser and go to `http://127.0.0.1:5000/admin`. Log in with the credentials you
       set in `config.json`.
