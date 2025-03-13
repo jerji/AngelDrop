@@ -1,8 +1,60 @@
+/* style.css */
+
+/* Define CSS Variables for Light Theme (Default) */
+:root {
+    --body-bg: #f4f4f4;
+    --container-bg: #fff;
+    --text-color: #333;
+    --heading-color: #446688;
+    --input-border: #ddd;
+    --button-bg: #5c85a3;
+    --button-hover-bg: #446688;
+    --table-header-bg: #f8f8f8;
+    --table-border: #ddd;
+    --drop-area-bg: #fafafa;
+    --drop-area-border: #bbb;
+    --flash-success-bg: #dff0d8;
+    --flash-success-border: #d6e9c6;
+    --flash-success-color: #3c763d;
+    --flash-error-bg: #f2dede;
+    --flash-error-border: #ebccd1;
+    --flash-error-color: #a94442;
+    --delete-button-bg: #d9534f;
+    --delete-button-hover-bg: #c9302c;
+    --copy-button-bg: #28a745;
+    --copy-button-hover-bg: #218838;
+    --link-color: #007bff; /* Default link color (light theme) */
+}
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --body-bg: #121212;  /* Dark gray */
+        --container-bg: #1e1e1e; /* Slightly lighter dark gray */
+        --text-color: #eee;      /* Light gray */
+        --heading-color: #9cb4cc; /* Lighter blue */
+        --input-border: #555;
+        --button-bg: #3a4f63;   /* Darker blue */
+        --button-hover-bg: #5c85a3;
+        --table-header-bg: #333;
+        --table-border: #555;
+        --drop-area-bg: #333;
+        --drop-area-border: #777;
+        --flash-success-color: #fff;
+        --flash-error-bg: #f44336;
+        --flash-error-border: #d32f2f;
+        --flash-error-color: #fff;
+        --delete-button-bg: #c62828;
+        --delete-button-hover-bg: #e53935;  /* Slightly lighter red */
+        --link-color: #add8e6; /* Light blue for dark theme */
+    }
+}
+
 /* General Styles */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
+    background-color: var(--body-bg);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
 }
@@ -11,13 +63,13 @@ body {
     max-width: 800px;
     margin: 20px auto;
     padding: 30px;
-    background-color: #fff;
+    background-color: var(--container-bg);
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
-    color: #446688;
+    color: var(--heading-color);
 }
 
 /* Form Styles */
@@ -39,14 +91,16 @@ input[type="file"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border);
     border-radius: 4px;
     box-sizing: border-box;
+    background-color: inherit; /* Important for dark mode inputs */
+    color: inherit;             /* Important for dark mode inputs */
 }
 
 button,
 .button {
-    background-color: #5c85a3;
+    background-color: var(--button-bg);
     color: white;
     padding: 10px 15px;
     border: none;
@@ -61,7 +115,7 @@ button,
 
 button:hover,
 .button:hover {
-    background-color: #446688;
+    background-color: var(--button-hover-bg);
 }
 
 /* Flash Message Styles */
@@ -77,15 +131,15 @@ button:hover,
 }
 
 .success {
-    background-color: #dff0d8;
-    border: 1px solid #d6e9c6;
-    color: #3c763d;
+    background-color: var(--flash-success-bg);
+    border: 1px solid var(--flash-success-border);
+    color: var(--flash-success-color);
 }
 
 .error {
-    background-color: #f2dede;
-    border: 1px solid #ebccd1;
-    color: #a94442;
+    background-color: var(--flash-error-bg);
+    border: 1px solid var(--flash-error-border);
+    color: var(--flash-error-color);
 }
 
 /* Table Styles */
@@ -97,7 +151,7 @@ table {
 }
 
 table, th, td {
-    border: 1px solid #ddd;
+    border: 1px solid var(--table-border);
 }
 
 th, td {
@@ -107,7 +161,7 @@ th, td {
 }
 
 th {
-    background-color: #f8f8f8;
+    background-color: var(--table-header-bg);
 }
 
 /* Set max-width for specific columns */
@@ -134,12 +188,12 @@ td:nth-child(6) {
 
 /* Upload Area Styles */
 #drop-area {
-    border: 2px dashed #bbb;
+    border: 2px dashed var(--drop-area-border);
     border-radius: 8px;
     padding: 40px;
     text-align: center;
     cursor: pointer;
-    background-color: #fafafa;
+    background-color: var(--drop-area-bg);
     transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
@@ -155,6 +209,9 @@ td:nth-child(6) {
 
 #file-list {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;  /* Stack file items vertically */
+    gap: 5px;  /* Add a little space between items */
 }
 
 #file-list div {
@@ -201,29 +258,20 @@ td:nth-child(6) {
 
 
 .delete-button {
-    background-color: #d9534f;
+    background-color: var(--delete-button-bg);
 }
 
 .delete-button:hover {
-    background-color: #c9302c;
-}
-
-.copy-button {
-    background-color: #28a745;
-    margin-right: 5px;
-}
-
-.copy-button:hover {
-    background-color: #218838;
+    background-color: var(--delete-button-hover-bg);
 }
 
 .cleanup-button {
-    background-color: #d9534f; /* Use the same red as delete */
+    background-color: var(--delete-button-bg); /* Use the same red as delete */
     margin-bottom: 10px;
 }
 
 .cleanup-button:hover {
-    background-color: #c9302c; /* Darker red on hover */
+    background-color: var(--delete-button-hover-bg); /* Darker red on hover */
 }
 
 /* Style for the password form on the upload page */
@@ -255,10 +303,10 @@ td:nth-child(6) {
 }
 
 .cleanup-preview {
-    border: 1px solid #ddd;
+    border: 1px solid var(--table-border);
     padding: 10px;
     margin-bottom: 20px;
-    background-color: #f9f9f9;
+    background-color: var(--table-header-bg);
 }
 
 .cleanup-preview ul {
@@ -268,4 +316,16 @@ td:nth-child(6) {
 
 .cleanup-preview li {
     margin-bottom: 5px;
+}
+
+/* Link Styles */
+a {
+    color: var(--link-color);
+    text-decoration: none; /* Or 'underline' if you prefer underlines */
+}
+
+a:hover,
+a:focus {
+    text-decoration: underline;  /* Provide a clear hover/focus indicator */
+    opacity: 0.8; /* Slightly dim on hover for visual feedback */
 }
