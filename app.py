@@ -174,46 +174,56 @@ def upload(token):
 
     if request.method == 'POST':
         if link['password_hash']:
-            provided_password = request.form.get('link_password')
+            provided_password = request.form.get('link_password') #KEEP THIS as form data
             if not provided_password or not check_link_password(link, provided_password):
                 flash('Incorrect password for this link.', 'error')
                 return render_template('upload.html', token=token, requires_password=True)
+
 
         if 'file' not in request.files:
             flash('No file part', 'error')
             return redirect(request.url)
 
-        # --- Handle Multiple Files ---
-        files = request.files.getlist('file')  # Get a list of files
+        files = request.files.getlist('file')
         for file in files:
             if file.filename == '':
-                # Skip empty filenames (can happen with multiple file inputs)
                 continue
 
             filename = secure_filename(file.filename)
             upload_path = link['folder_path']
             filepath = os.path.join(upload_path, filename)
 
-            # Check if the file already exists
             if os.path.exists(filepath):
                 flash(f'File {filename} already exists. Try Again.', 'error')
                 continue
 
-            # Disk space check (check for EACH file)
-            file.seek(0, os.SEEK_END)
-            file_size = file.tell()
-            file.seek(0)
+            # Disk space check before starting the upload
             available_space = get_available_space(upload_path)
-            if file_size > available_space:
+
+            # Get file size from Content-Length header (more reliable for streaming)
+            content_length = request.content_length
+            if content_length is None:
+               flash("Could not determine file size.", "error")
+               return redirect(request.url)
+
+            if content_length > available_space:
                 flash(f'Not enough disk space for {filename}', 'error')
-                return redirect(request.url)  # Stop on first error
+                return redirect(request.url)
 
             try:
-                file.save(filepath)
+                # Stream the file content directly to disk
+                with open(filepath, 'wb') as f:
+                    while True:
+                        chunk = file.stream.read(4096) # Read in 4KB chunks
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                flash(f'File {filename} Uploaded successfully.', 'success')
             except Exception as e:
                 flash(f'Error saving {filename}: {e}', 'error')
-                return redirect(request.url)  # Stop on first error
-            flash(f'File {filename} Uploaded successfully.', 'success')
+                return redirect(request.url)
+
+
         return redirect(request.url)
 
     requires_password = link['password_hash'] is not None
