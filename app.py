@@ -21,10 +21,15 @@ else:
 app.config['SECRET_KEY'] = config['SECRET_KEY']
 
 # Configure base path
-if config['BASE_PATH'] == '/':
-    app.config['BASE_PATH'] = '/'
-else:
-    app.config['BASE_PATH'] = config['BASE_PATH'].rstrip('/')
+if 'BASE_PATH' not in config or not config['BASE_PATH']:
+     print('BASE_PATH not set in config.json', file=sys.stderr)
+     exit(1)
+# Ensure the base path exists and is a directory
+if not os.path.isdir(config['BASE_PATH']):
+     print(f"BASE_PATH '{config['BASE_PATH']}' does not exist or is not a directory.", file=sys.stderr)
+     exit(1)
+# Normalize and store the absolute base path
+app.config['BASE_PATH'] = os.path.abspath(config['BASE_PATH'])
 
 # Database Configuration with absolute path for reliability
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
