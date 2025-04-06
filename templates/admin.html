@@ -5,15 +5,14 @@
 
 <h2>Create New Link</h2>
 <form method="post">
-    <!-- ... (Your create link form) ... -->
-    <label for="folder_path">Folder Path ({{ basepath }}):</label>
-    <input type="text" id="folder_path" name="folder_path" required>
+    <label for="folder_path">Folder Path (Relative to: {{ basepath }}):</label>
+    <input type="text" id="folder_path" name="folder_path" placeholder="e.g., project_a/uploads" required>
 
     <label for="password">Password (optional):</label>
     <input type="password" id="password" name="password">
 
-    <label for="expiry">Expiry (optional, YYYY-MM-DDTHH:MM):</label>
-    <input type="datetime-local" id="expiry" name="expiry">
+    <label for="expiry">Expiry (optional):</label>
+    <input type="datetime-local" id="expiry" name="expiry" title="Leave blank for no expiry">
 
     <button type="submit">Create Link</button>
 </form>
@@ -26,90 +25,126 @@
     <h3>Links to be Cleaned Up:</h3>
     {% if links_to_delete %}
     <ul>
-        {% for link in links_to_delete %}
+        {% for link_data in links_to_delete %}
         <li>
-            ID: {{ link['id'] }}, Token: {{ link['token'] }}, Path: {{ link['folder_path'] }}
-            {% if is_link_expired(link) %} (Expired) {% endif %}
-            {% if not link['folder_path'] or not os.path.exists(link['folder_path']) %} (Directory Not Found) {% endif
-            %}
+            ID: {{ link_data['id'] }}, Token: {{ link_data['token'] }}, Path: {{ link_data['folder_path'] }}
+            {% if link_data.reason_expired %} <span class="expired">(Expired)</span> {% endif %}
+            {% if link_data.reason_path_missing %} <span class="error">(Directory Not Found)</span> {% endif %}
         </li>
         {% endfor %}
     </ul>
-    {% else %}
-    <p>No links to clean up.</p>
-    {% endif %}
     <form action="{{ url_for('cleanup_links') }}" method="post"
-          onsubmit="return confirm('Are you sure you want to delete expired links and links with non-existent directories?');">
+          onsubmit="return confirm('Are you sure you want to delete {{ links_to_delete | length }} link(s)? This includes expired links and links with non-existent directories.');">
         <button type="submit" class="cleanup-button">Confirm Cleanup</button>
-        <a href="{{url_for('admin', _anchor='links')}}" class="button">Cancel</a>
+        <a href="{{url_for('admin', _anchor='links')}}" class="button cancel-button">Cancel</a>
     </form>
-</div>
+    {% else %}
+    <p>No expired links or links with missing directories found to clean up.</p>
+    <a href="{{url_for('admin', _anchor='links')}}" class="button cancel-button">Back</a>
+    {% endif %}
 
+</div>
 {% else %}
-<form action="{{ url_for('cleanup_links') }}" method="get" style="display: inline;">
-    <button type="submit" class="cleanup-button">Cleanup Links</button>
+<form action="{{ url_for('cleanup_links') }}" method="get" style="display: inline; margin-bottom: 15px;">
+    <button type="submit" class="cleanup-button">Cleanup Invalid Links</button>
 </form>
 {% endif %}
-<!-- Existing Links Table -->
-<table>
-    <!-- ... (rest of your table from before) ... -->
-    <thead>
-    <tr>
-        <th>Token</th>
-        <th>Folder Path</th>
-        <th>Password Protected</th>
-        <th>Expiry</th>
-        <th>Link</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for link in links %}
-    <tr>
-        <td>{{ link['token'] }}</td>
-        <td>{{ link['folder_path'] }}</td>
-        <td class="{% if link['password_hash'] %}password-protected{% endif %}">
-            {{ 'Yes' if link['password_hash'] else 'No' }}
-        </td>
-        <td class="{% if is_link_expired(link) %}expired{% endif %}">
-            {% if link['expiry_timestamp'] %}
-            {{ link['expiry_timestamp'] | datetimeformat }}
-            {% else %}
-            None
-            {% endif %}
-        </td>
-        <td><a href="{{ url_for('upload', token=link['token']) }}">{{ url_for('upload', token=link['token']) }}</a></td>
-        <td>
-            <button class="copy-button" data-link="{{ link['token'] }}">Copy
-            </button>
-            <form action="{{ url_for('delete_link', link_id=link['id']) }}" method="post" style="display: inline;"
-                  onsubmit="return confirm('Are you sure you want to delete this link?');">
-                <button type="submit" class="delete-button">Delete</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
 
-{% if session['username'] == "admin" %}<a href="{{ url_for('manage_users') }}">Manage Users</a><br>{% endif %}
-<a href="{{ url_for('logout') }}">Logout</a>
+<!-- Existing Links Table -->
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>Token</th>
+            <th>Folder Path</th>
+            <th>Password</th>
+            <th>Expiry</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th>Actions</th>
+            {# Combined Link URL into Actions #}
+        </tr>
+        </thead>
+        <tbody>
+        {% for link in links %}
+        {% set is_expired = is_link_expired(link) %}
+        {% set path_exists = os_path.isdir(link['folder_path']) %} {# Use os_path context processor #}
+        <tr class="{% if is_expired %}expired-row{% elif not path_exists %}error-row{% endif %}">
+            <td><code>{{ link['token'] }}</code></td>
+            {# Calculate relative path for display #}
+            <td><code>{{ link['folder_path'] | replace(basepath, '', 1) if link['folder_path'].startswith(basepath) else
+                link['folder_path'] }}</code></td>
+            <td class="{% if link['password_hash'] %}password-protected{% endif %}">
+                {{ 'Yes' if link['password_hash'] else 'No' }}
+            </td>
+            <td class="{% if is_expired %}expired{% endif %}">
+                {% if link['expiry_timestamp'] %}
+                {{ link['expiry_timestamp'] | datetimeformat }}
+                {% else %}
+                Never
+                {% endif %}
+            </td>
+            <td>{{ link['created_timestamp'] | datetimeformat if link['created_timestamp'] else 'N/A' }}</td>
+            <td>
+                {% if is_expired %} <span class="expired">Expired</span>
+                {% elif not path_exists %} <span class="error">Dir Missing</span>
+                {% else %} <span class="success">Active</span>
+                {% endif %}
+            </td>
+            {# --- Combined Actions Cell --- #}
+            <td class="actions-cell">
+                {% set upload_url = url_for('upload', token=link['token'], _external=True) %}
+                {# "Open Link" styled as a button #}
+                <a href="{{ upload_url }}" class="button small-button open-link-button" target="_blank"
+                   title="Open Upload Link in New Tab">Open</a>
+                <button class="copy-button small-button" data-link="{{ upload_url }}" title="Copy Upload URL">Copy
+                </button>
+                <a href="{{ url_for('link_details', link_id=link['id']) }}" class="button small-button details-button"
+                   title="View Details & Files">Details</a>
+                <form action="{{ url_for('delete_link', link_id=link['id']) }}" method="post" style="display: inline;"
+                      onsubmit="return confirm('Are you sure you want to delete the link for {{ link['folder_path'] | replace(basepath, '', 1) if link['folder_path'].startswith(basepath) else link['folder_path'] }}? This cannot be undone.');">
+                    <button type="submit" class="delete-button small-button" title="Delete Link">Delete</button>
+                </form>
+            </td>
+            {# --- End Combined Actions Cell --- #}
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" style="text-align: center;">No links created yet.</td>
+            {# Adjusted colspan #}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if session['username'] == 'admin' %}<a href="{{ url_for('manage_users') }}">Manage Users</a><br>{% endif %}
+
+<p style="margin-top: 20px;"><a href="{{ url_for('logout') }}">Logout</a></p>
 
 <script>
-    // ... your copy-button script (no changes needed here) ...
     document.querySelectorAll('.copy-button').forEach(button => {
         button.addEventListener('click', function () {
-            const link = window.location.href.split(`admin`)[0] + 'upload/' + this.dataset.link
-            navigator.clipboard.writeText(link)
+            const linkToCopy = this.dataset.link; // Link is now directly in data-link
+            navigator.clipboard.writeText(linkToCopy)
                 .then(() => {
+                    const originalText = this.textContent;
                     this.textContent = 'Copied!';
-                    setTimeout(() => this.textContent = 'Copy', 1500);
+                    this.disabled = true; // Briefly disable button
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.disabled = false;
+                    }, 1500);
                 })
                 .catch(err => {
                     console.error('Could not copy text: ', err);
-                    alert('Could not copy link.  Please copy manually.');
+                    alert('Could not copy link automatically. Please copy manually:\n' + linkToCopy);
                 });
         });
     });
+    // Prevent form resubmission on refresh
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
 </script>
 {% endblock %}

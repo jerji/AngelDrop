@@ -118,7 +118,8 @@ Key configuration items:
   python -c 'import secrets; print(secrets.token_hex(32))'
   ```
 
-* **`BASE_PATH`**: Root directory for file operations. Using `/` grants access to the entire system (not recommended for production).
+* **`BASE_PATH`**: Root directory for file operations. Using `/` grants access to the entire system (not recommended for
+  production).
 
 * **`users`**: Admin username(s) and password(s). **Change the default password immediately!**
 
@@ -135,21 +136,21 @@ python app.py
 1. Access the admin panel at `http://your-server:5000/admin`
 2. Log in with credentials from your `config.json`
 3. Create upload links:
-   - Enter the absolute path to your target folder
-   - Optionally set a password
-   - Optionally set an expiry time (format: `YYYY-MM-DDTHH:MM`)
+    - Enter the absolute path to your target folder
+    - Optionally set a password
+    - Optionally set an expiry time (format: `YYYY-MM-DDTHH:MM`)
 4. Manage existing links:
-   - Copy links to clipboard
-   - Delete links
-   - Clean up expired or invalid links
+    - Copy links to clipboard
+    - Delete links
+    - Clean up expired or invalid links
 
 ### Uploading Files
 
 1. Visit a generated upload link (`http://your-server:5000/upload/<token>`)
 2. Enter the password if required
 3. Upload files by:
-   - Dragging and dropping onto the page
-   - Clicking "Select files" to use the file picker
+    - Dragging and dropping onto the page
+    - Clicking "Select files" to use the file picker
 4. Multiple files can be uploaded simultaneously
 
 ## Production Deployment
@@ -222,6 +223,7 @@ server {
 
 }
 ```
+
 This config is separated to assure only people on the local network can access admin pages.
 
 ### 4. Nginx Performance Settings
@@ -248,18 +250,18 @@ Create a systemd service file (example in `lib/angeldrop.service`):
 
 ```ini
 [Unit]
-Description=Angel Drop File Dropper
-After=network.target
+Description = Angel Drop File Dropper
+After = network.target
 
 [Service]
-User=your_user
-Group=your_user
-WorkingDirectory=/opt/AngelDrop
-ExecStart=/opt/AngelDrop/venv/bin/gunicorn -b 0.0.0.0:5000 -w 4 --timeout 600 app:app
-Restart=always
+User = your_user
+Group = your_user
+WorkingDirectory = /opt/AngelDrop
+ExecStart = /opt/AngelDrop/venv/bin/gunicorn -b 0.0.0.0:5000 -w 4 --timeout 600 app:app
+Restart = always
 
 [Install]
-WantedBy=multi-user.target
+WantedBy = multi-user.target
 
 ```
 
@@ -289,17 +291,17 @@ sudo systemctl start angeldrop
 ### Common Issues
 
 1. **Database Errors**
-   - Check that the `db` directory exists and is writable
-   - Verify database permissions
+    - Check that the `db` directory exists and is writable
+    - Verify database permissions
 
 2. **Upload Failures**
-   - Check available disk space
-   - Verify folder permissions
-   - Check file size limits in both the application and Nginx
+    - Check available disk space
+    - Verify folder permissions
+    - Check file size limits in both the application and Nginx
 
 3. **Link Expiration Issues**
-   - Verify server time is correct
-   - Check for time zone discrepancies
+    - Verify server time is correct
+    - Check for time zone discrepancies
 
 ## Contributing
 

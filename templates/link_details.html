@@ -1,0 +1,57 @@
+<!-- templates/link_details.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Link Details</h1>
+
+<div class="link-info-box">
+    <h2>Link Information</h2>
+    <p><strong>Token:</strong> <code>{{ link['token'] }}</code></p>
+    <p><strong>Target Folder Path:</strong> <code>{{ link['folder_path'] }}</code>
+        {% if not directory_exists %} <span class="error">(Directory Not Found!)</span> {% endif %}
+    </p>
+    <p><strong>Password Protected:</strong> {{ 'Yes' if link['password_hash'] else 'No' }}</p>
+    <p><strong>Expires:</strong>
+        {% if link['expiry_timestamp'] %}
+        <span class="{{ 'expired' if is_link_expired(link) else '' }}">
+                {{ link['expiry_timestamp'] | datetimeformat }}
+                {% if is_link_expired(link) %}(Expired){% endif %}
+            </span>
+        {% else %}
+        Never
+        {% endif %}
+    </p>
+    <p><strong>Created:</strong> {{ link['created_timestamp'] | datetimeformat if link['created_timestamp'] else 'N/A'
+        }}</p>
+    <p><strong>Upload URL:</strong> <a href="{{ url_for('upload', token=link['token'], _external=True) }}"
+                                       target="_blank">{{ url_for('upload', token=link['token'], _external=True) }}</a>
+    </p>
+</div>
+
+<h2>Uploaded Files ({{ uploaded_files | length }})</h2>
+{% if uploaded_files %}
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Upload Timestamp (UTC)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for file in uploaded_files %}
+        <tr>
+            <td><code>{{ file['filename'] }}</code></td>
+            <td>{{ file['upload_timestamp'] | datetimeformat }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No files have been uploaded using this link yet.</p>
+{% endif %}
+
+<p style="margin-top: 20px;"><a href="{{ url_for('admin') }}" class="button">Back to Admin Panel</a></p>
+
+{% endblock %}

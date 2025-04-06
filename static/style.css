@@ -1,4 +1,4 @@
-/* style.css */
+/* static/style.css */
 
 /* Define CSS Variables for Light Theme (Default) */
 :root {
@@ -23,83 +23,172 @@
     --delete-button-hover-bg: #c9302c;
     --copy-button-bg: #28a745;
     --copy-button-hover-bg: #218838;
+    --details-button-bg: #17a2b8; /* Info Blue */
+    --details-button-hover-bg: #138496;
+    --open-link-button-bg: #6c757d; /* Secondary Gray */
+    --open-link-button-hover-bg: #5a6268;
+    --cancel-button-bg: #6c757d;
+    --cancel-button-hover-bg: #5a6268;
     --link-color: #007bff; /* Default link color (light theme) */
     --progress-bar-bg: #007bff; /* Default progress bar color */
-    --progress-bar-writing-bg: #ffc107;  /* Writing to disk color */
-
+    --progress-bar-writing-bg: #ffc107; /* Writing to disk color */
+    --expired-color: #dc3545; /* Red for expired status */
 }
 
 /* Dark Theme */
 @media (prefers-color-scheme: dark) {
     :root {
-        --body-bg: #121212;  /* Dark gray */
-        --container-bg: #1e1e1e; /* Slightly lighter dark gray */
-        --text-color: #eee;      /* Light gray */
-        --heading-color: #9cb4cc; /* Lighter blue */
+        --body-bg: #121212;
+        --container-bg: #1e1e1e;
+        --text-color: #eee;
+        --heading-color: #9cb4cc;
         --input-border: #555;
-        --button-bg: #3a4f63;   /* Darker blue */
+        --button-bg: #3a4f63;
         --button-hover-bg: #5c85a3;
-        --table-header-bg: #333;
-        --table-border: #555;
-        --drop-area-bg: #333;
+        --table-header-bg: #2a2a2a; /* Darker header */
+        --table-border: #444; /* Darker border */
+        --drop-area-bg: #2a2a2a;
         --drop-area-border: #777;
-        --flash-success-color: #3c763d;
-        --flash-error-bg: #f44336;
-        --flash-error-border: #d32f2f;
-        --flash-error-color: #fff;
+        --flash-success-bg: #2a4a36; /* Dark success */
+        --flash-success-border: #3c763d;
+        --flash-success-color: #a6d7a8;
+        --flash-error-bg: #5a2a2a; /* Dark error */
+        --flash-error-border: #a94442;
+        --flash-error-color: #f4c8c7;
         --delete-button-bg: #c62828;
-        --delete-button-hover-bg: #e53935;  /* Slightly lighter red */
-        --link-color: #add8e6; /* Light blue for dark theme */
+        --delete-button-hover-bg: #e53935;
+        --copy-button-bg: #1f7a38;
+        --copy-button-hover-bg: #28a745;
+        --details-button-bg: #138496;
+        --details-button-hover-bg: #17a2b8;
+        --open-link-button-bg: #5a6268;
+        --open-link-button-hover-bg: #6c757d;
+        --cancel-button-bg: #5a6268;
+        --cancel-button-hover-bg: #6c757d;
+        --link-color: #8ab4f8; /* Lighter blue for links */
+        --progress-bar-bg: #3a4f63; /* Match button color */
+        --progress-bar-writing-bg: #b8860b; /* Darker yellow */
+        --expired-color: #f48a94; /* Lighter red */
     }
 }
 
 /* General Styles */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: var(--body-bg);
     color: var(--text-color);
     margin: 0;
     padding: 0;
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1140px;
     margin: 20px auto;
-    padding: 30px;
+    padding: 20px 30px;
     background-color: var(--container-bg);
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
-    color: var(--heading-color);
+@media (prefers-color-scheme: dark) {
+    .container {
+        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+    }
 }
+
+
+h1, h2, h3 {
+    color: var(--heading-color);
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+h3 {
+    font-size: 1.2em;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+    opacity: 0.85;
+}
+
+code {
+    background-color: var(--body-bg);
+    padding: 0.2em 0.4em;
+    margin: 0;
+    font-size: 85%;
+    border-radius: 3px;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+pre code {
+    font-size: inherit;
+}
+
+/* Reset size inside pre */
 
 /* Form Styles */
 form {
     margin-bottom: 20px;
 }
 
+.form-field {
+    margin-bottom: 15px;
+}
+
 label {
     display: block;
     margin-bottom: 5px;
-    font-weight: bold;
+    font-weight: 600; /* Slightly bolder */
 }
 
 input[type="text"],
 input[type="password"],
 input[type="datetime-local"],
 button,
-input[type="file"] {
+.button, /* Class for button-like elements (e.g., styled links) */
+input[type="file"] { /* Basic file input styling */
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
+    padding: 10px 12px;
     border: 1px solid var(--input-border);
     border-radius: 4px;
     box-sizing: border-box;
-    background-color: inherit; /* Important for dark mode inputs */
-    color: inherit;             /* Important for dark mode inputs */
+    background-color: var(--container-bg); /* Match container background */
+    color: var(--text-color);
+    font-size: 1em; /* Inherit body font size */
+    line-height: inherit; /* Inherit line height */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
+
+/* Remove margin for inputs within specific form groups */
+.add-user-form input, .reset-password-form input {
+    margin-bottom: 10px;
+}
+
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime-local"]:focus {
+    border-color: var(--button-hover-bg);
+    box-shadow: 0 0 0 2px rgba(68, 102, 136, 0.2); /* Subtle focus ring */
+    outline: none;
+}
+
 
 button,
 .button {
@@ -109,193 +198,33 @@ button,
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    display: inline-block;
-    text-decoration: none;
-    width: auto;
+    font-size: 1em; /* Match body font size */
+    font-weight: 500;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    display: inline-block; /* Important for layout */
+    text-decoration: none; /* For link buttons */
+    text-align: center;
+    vertical-align: middle;
+    width: auto; /* Don't force full width unless needed */
+    margin-bottom: 5px; /* Add bottom margin for spacing */
 }
 
 button:hover,
 .button:hover {
     background-color: var(--button-hover-bg);
+    color: white; /* Ensure text remains white */
+    text-decoration: none; /* Keep underline off on hover */
 }
 
-/* Flash Message Styles */
-.flash-messages {
-    list-style: none;
-    padding: 0;
+button:disabled,
+.button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
-.flash-messages li {
-    padding: 10px;
-    margin-bottom: 5px;
-    border-radius: 4px;
-}
-
-.success {
-    background-color: var(--flash-success-bg);
-    border: 1px solid var(--flash-success-border);
-    color: var(--flash-success-color);
-}
-
-.error {
-    background-color: var(--flash-error-bg);
-    border: 1px solid var(--flash-error-border);
-    color: var(--flash-error-color);
-}
-
-/* Table Styles */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    table-layout: fixed; /* Crucial for responsiveness */
-}
-
-table, th, td {
-    border: 1px solid var(--table-border);
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    word-wrap: break-word; /* Allow long words to break */
-}
-
-th {
-    background-color: var(--table-header-bg);
-}
-
-/* Set max-width for specific columns */
-th:nth-child(1), /* ID */
-td:nth-child(1) {
-    max-width: 50px;
-}
-
-th:nth-child(2), /* Token */
-td:nth-child(2) {
-    max-width: 150px; /* Adjust as needed */
-}
-
-th:nth-child(3),  /*Folder Path*/
-td:nth-child(3) {
-  max-width: 150px;
-}
-
-th:nth-child(6), /* Link */
-td:nth-child(6) {
-    max-width: 100px; /* Adjust as needed */
-}
-
-
-/* Upload Area Styles */
-#drop-area {
-    border: 2px dashed var(--drop-area-border);
-    border-radius: 8px;
-    padding: 40px;
-    text-align: center;
-    cursor: pointer;
-    background-color: var(--drop-area-bg);
-    transition: border-color 0.3s ease, background-color 0.3s ease;
-}
-
-#drop-area.highlight {
-    border-color: #4CAF50;
-    background-color: #e8ffe9;
-}
-
-#drop-area p {
-    font-size: 18px;
-    color: #666;
-}
-
-#file-list {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;  /* Stack file items vertically */
-    gap: 5px;  /* Add a little space between items */
-}
-
-#file-list div {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-}
-#progress-bar {
-    width: 100%;
-    text-align: center;
-    color: white;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-}
-
-/* Progress Bar Styles */
-#progress-bar {
-  width: 100%;
-  height: 20px; /* Set a height for the bar */
-  background-color: #ddd; /* Background color */
-  border-radius: 10px; /* Rounded corners */
-  overflow: hidden; /* Ensure the progress fill doesn't overflow */
-}
-#progress-bar::-webkit-progress-bar {
-    background-color: #eee;
-}
-
-#progress-bar::-webkit-progress-value {
-  background-color: var(--progress-bar-bg); /* Default progress color */
-  transition: width 0.3s ease; /* Smooth transition for width changes */
-}
-#progress-bar::-moz-progress-bar{
-    background-color: var(--progress-bar-bg);
-    transition: width 0.3s ease;
-}
-#progress-bar.writing::-webkit-progress-value {
-    background-color: var(--progress-bar-writing-bg); /* Color when writing */
-}
-#progress-bar.writing::-moz-progress-bar {
-  background-color: var(--progress-bar-writing-bg); /* Color when writing */
-}
-
-
-/* Make it responsive */
-@media (max-width: 768px) {
-    .container {
-        margin: 10px;
-        padding: 20px;
-    }
-    #drop-area {
-        padding: 20px;
-    }
-    #drop-area p{
-        font-size: 15px;
-    }
-     /* Adjust table column widths for smaller screens */
-    th:nth-child(2),
-    td:nth-child(2),
-    th:nth-child(3),
-    td:nth-child(3),
-    th:nth-child(6),
-    td:nth-child(6) {
-        max-width: 100px; /* Smaller max-width on mobile */
-    }
-}
-
-/* Action Button Styles (Delete, Copy, Cleanup) */
-.delete-button,
-.copy-button,
-.cleanup-button {  /* Apply common styles to all action buttons */
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    color: white;
-    font-size: 14px; /* Slightly smaller font size for buttons */
-    margin-right: 5px; /* Spacing between buttons */
-    transition: background-color 0.3s ease;
-}
-
-
+/* Specific Button Colors */
 .delete-button {
     background-color: var(--delete-button-bg);
 }
@@ -304,67 +233,614 @@ td:nth-child(6) {
     background-color: var(--delete-button-hover-bg);
 }
 
+.copy-button {
+    background-color: var(--copy-button-bg);
+}
+
+.copy-button:hover {
+    background-color: var(--copy-button-hover-bg);
+}
+
+.details-button {
+    background-color: var(--details-button-bg);
+}
+
+.details-button:hover {
+    background-color: var(--details-button-hover-bg);
+}
+
+.open-link-button {
+    background-color: var(--open-link-button-bg);
+}
+
+.open-link-button:hover {
+    background-color: var(--open-link-button-hover-bg);
+}
+
+.cancel-button {
+    background-color: var(--cancel-button-bg);
+}
+
+.cancel-button:hover {
+    background-color: var(--cancel-button-hover-bg);
+}
+
 .cleanup-button {
-    background-color: var(--delete-button-bg); /* Use the same red as delete */
+    background-color: var(--delete-button-bg);
     margin-bottom: 10px;
 }
 
 .cleanup-button:hover {
-    background-color: var(--delete-button-hover-bg); /* Darker red on hover */
+    background-color: var(--delete-button-hover-bg);
 }
 
-/* Style for the password form on the upload page */
-#password-form {
-    margin-bottom: 20px;
-    text-align: center; /* Center the password form */
+
+.small-button {
+    padding: 4px 8px;
+    font-size: 0.9em;
 }
 
-.expired {
-    color: red;
-    font-weight: bold; /* Optional: make it bold as well */
+/* Flash Message Styles */
+.flash-messages {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0; /* Space below messages */
 }
 
-.password-protected {
+.flash-messages li {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid transparent; /* Base border */
+    font-weight: 500;
+}
+
+.flash-messages li.success {
+    background-color: var(--flash-success-bg);
+    border-color: var(--flash-success-border);
+    color: var(--flash-success-color);
+}
+
+.flash-messages li.error {
+    background-color: var(--flash-error-bg);
+    border-color: var(--flash-error-border);
+    color: var(--flash-error-color);
+}
+
+.flash-messages li.info {
+    background-color: #e7f3fe; /* Light blue info */
+    border-color: #d0eaff;
+    color: #0c5460;
+}
+
+@media (prefers-color-scheme: dark) {
+    .flash-messages li.info {
+        background-color: #2a3f50;
+        border-color: #3a4f63;
+        color: #9cb4cc;
+    }
+}
+
+.flash-messages li.warning {
+    background-color: #fff3cd; /* Light yellow warning */
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+@media (prefers-color-scheme: dark) {
+    .flash-messages li.warning {
+        background-color: #5a502a;
+        border-color: #856404;
+        color: #f4e04d;
+    }
+}
+
+
+/* Table Styles */
+.table-container {
+    overflow-x: auto; /* Allow horizontal scroll on small screens */
+    margin-bottom: 15px;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+    /* Removed table-layout: fixed; Let browser decide */
+}
+
+th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border: 1px solid var(--table-border);
+    vertical-align: middle;
+    word-wrap: break-word;
+}
+
+th {
+    background-color: var(--table-header-bg);
     font-weight: bold;
+    white-space: nowrap;
+}
+
+th small {
+    font-weight: normal;
+    font-size: 0.8em;
+    color: #666;
+}
+
+@media (prefers-color-scheme: dark) {
+    th small {
+        color: #aaa;
+    }
+}
+
+td.actions-cell {
+    text-align: left; /* Align buttons consistently */
+    white-space: normal; /* Allow wrapping */
+}
+
+.actions-cell form,
+.actions-cell .button,
+.actions-cell a.button {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 5px; /* Space when wrapped */
+    vertical-align: middle;
+}
+
+/* Row status highlighting */
+.expired-row td {
+    background-color: rgba(220, 53, 69, 0.05); /* Faint red */
+}
+
+.error-row td {
+    background-color: rgba(255, 193, 7, 0.08); /* Faint yellow/orange */
+}
+
+/* Apply text color to specific status spans, not whole row */
+.expired, span.expired {
+    color: var(--expired-color);
+    font-weight: bold;
+}
+
+.error, span.error {
+    color: var(--flash-error-color); /* Use flash error text color */
+    font-weight: bold;
+    word-break: break-word; /* Allow wrapping */
+}
+
+.success, span.success {
+    color: var(--flash-success-color);
+    font-weight: bold;
+}
+
+
+/* --- Link Details Page --- */
+.link-info-box {
+    background-color: var(--table-header-bg);
+    border: 1px solid var(--table-border);
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    border-radius: 4px;
+}
+
+.link-info-box p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.link-info-box strong {
+    min-width: 150px; /* Align labels */
+    display: inline-block;
+}
+
+.link-info-box code {
+    white-space: pre-wrap;
+    word-break: break-all;
+    display: inline-block;
+    max-width: calc(100% - 160px); /* Prevent long codes pushing layout */
+    vertical-align: text-top; /* Align better */
+    background-color: var(--body-bg); /* Slightly different background */
+}
+
+.note {
+    font-size: 0.9em;
+    color: #555;
+}
+
+@media (prefers-color-scheme: dark) {
+    .note {
+        color: #bbb;
+    }
+}
+
+/* --- Upload Page Styles --- */
+#drop-area {
+    border: 2px dashed var(--drop-area-border);
+    border-radius: 8px;
+    padding: 30px 40px;
+    text-align: center;
+    cursor: pointer;
+    background-color: var(--drop-area-bg);
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    margin-bottom: 15px;
+}
+
+#drop-area:hover, #drop-area.highlight {
+    border-color: var(--progress-bar-bg);
+    background-color: rgba(0, 123, 255, 0.03);
+}
+
+@media (prefers-color-scheme: dark) {
+    #drop-area:hover, #drop-area.highlight {
+        background-color: rgba(173, 216, 230, 0.05);
+    }
+}
+
+#drop-area p {
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+@media (prefers-color-scheme: dark) {
+    #drop-area p {
+        color: #aaa;
+    }
+}
+
+#drop-area label.button {
+    margin-top: 10px;
+}
+
+#file-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Space between file items */
 }
 
 .file-item {
     display: flex;
-    align-items: center;
-    margin-bottom: 5px;
+    /* Remove justify-content: space-between; We'll control spacing manually */
+    align-items: center; /* Keep vertical alignment */
+    padding: 8px 10px;
+    border-bottom: 1px dotted var(--input-border);
+    background-color: var(--table-header-bg);
+    border-radius: 3px;
+    font-size: 0.95em;
+    gap: 10px; /* Add gap between flex items */
+}
+
+.file-name {
+    flex-grow: 1; /* Allow filename to take up most space */
+    /* Remove margin-right, use gap instead */
+    word-break: break-all;
+    /* Add min-width to prevent it from becoming too small */
+    min-width: 100px;
+}
+
+.file-size {
+    color: #666;
+    /* Remove margin-right */
+    white-space: nowrap;
+    font-size: 0.9em;
+    flex-shrink: 0; /* Prevent size from shrinking */
+}
+
+@media (prefers-color-scheme: dark) {
+    .file-size {
+        color: #aaa;
+    }
+}
+
+.file-status {
+    font-style: italic;
+    /* Remove margin-right */
+    /* Remove min-width: 100px; Let it size based on content or shrink */
+    text-align: right;
+    white-space: normal; /* Allow status/error text to wrap */
+    word-break: break-word; /* Ensure long errors wrap */
+    font-size: 0.9em;
+    flex-shrink: 1; /* Allow status to shrink if needed */
+    /* Add a max-width relative to viewport or container if necessary,
+       but flex properties might be enough. Example:
+       max-width: 30%;
+    */
+}
+
+.file-status.success {
+    font-weight: bold;
+    color: var(--flash-success-color);
+}
+
+.file-status.error {
+    font-weight: bold;
+    color: var(--flash-error-color);
 }
 
 .remove-button {
-    color: red;
-    margin-left: 10px;
+    color: var(--delete-button-bg);
     cursor: pointer;
     font-weight: bold;
+    padding: 0 5px;
+    font-size: 1.2em;
+    line-height: 1;
+    flex-shrink: 0; /* Prevent button from shrinking */
+    /* margin-left: auto; */ /* Push button to the far right if needed, but gap might suffice */
 }
 
+.remove-button:hover {
+    color: var(--delete-button-hover-bg);
+}
+
+/* Progress Bar & Status */
+#upload-status-area {
+    margin-top: 15px;
+}
+
+#progress-bar {
+    width: 100%;
+    height: 10px; /* Make bar thinner */
+    border: 1px solid var(--input-border);
+    border-radius: 5px;
+    overflow: hidden;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin-bottom: 5px; /* Space below bar */
+}
+
+#progress-bar::-webkit-progress-bar {
+    background-color: var(--table-header-bg);
+}
+
+#progress-bar::-moz-progress-bar {
+    background-color: var(--table-header-bg);
+}
+
+#progress-bar::-webkit-progress-value {
+    background-color: var(--progress-bar-bg);
+    transition: width 0.1s linear;
+}
+
+#progress-bar::-moz-progress-bar {
+    background-color: var(--progress-bar-bg);
+    transition: width 0.1s linear;
+}
+
+#progress-bar.writing::-webkit-progress-value {
+    background-color: var(--progress-bar-writing-bg);
+}
+
+#progress-bar.writing::-moz-progress-bar {
+    background-color: var(--progress-bar-writing-bg);
+}
+
+#uploading-status, #writing-status {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+@media (prefers-color-scheme: dark) {
+    #uploading-status, #writing-status {
+        color: #bbb;
+    }
+}
+
+/* --- User Management Page --- */
+.add-user-form {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background-color: var(--table-header-bg);
+}
+
+.user-management-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap; /* Allow buttons/forms to wrap */
+}
+
+.user-management-actions form,
+.user-management-actions .button {
+    margin-bottom: 5px; /* Consistent spacing */
+}
+
+.reset-password-form {
+    display: none; /* Hidden by default */
+    align-items: center;
+    gap: 5px;
+    margin-left: 10px;
+    flex-wrap: wrap;
+    flex-grow: 1; /* Allow form to take space */
+}
+
+.reset-password-form input[type="password"] {
+    margin-bottom: 0;
+    flex-grow: 1;
+    min-width: 150px;
+    padding: 8px 10px; /* Smaller padding for inline */
+    font-size: 0.95em;
+}
+
+.reset-password-form button {
+    margin-bottom: 0;
+    padding: 8px 12px; /* Smaller padding */
+    font-size: 0.9em;
+}
+
+/* Style for screen-reader only labels */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap; /* Changed from 'nowrap;' to 'nowrap' */
+    border: 0;
+}
+
+/* --- Cleanup Preview --- */
 .cleanup-preview {
     border: 1px solid var(--table-border);
-    padding: 10px;
+    padding: 15px;
     margin-bottom: 20px;
     background-color: var(--table-header-bg);
+    border-radius: 4px;
+}
+
+.cleanup-preview h3 {
+    margin-top: 0;
 }
 
 .cleanup-preview ul {
     list-style: none;
     padding: 0;
+    margin-bottom: 15px;
 }
 
 .cleanup-preview li {
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-size: 0.95em;
 }
 
-/* Link Styles */
-a {
-    color: var(--link-color);
-    text-decoration: none; /* Or 'underline' if you prefer underlines */
+.cleanup-preview li span {
+    font-weight: normal;
 }
 
-a:hover,
-a:focus {
-    text-decoration: underline;  /* Provide a clear hover/focus indicator */
-    opacity: 0.8; /* Slightly dim on hover for visual feedback */
+/* Reset bold from .error/.expired */
+
+/* --- Message Page --- */
+.message-body {
+    background-color: var(--table-header-bg);
+    padding: 20px 25px;
+    border: 1px solid var(--table-border);
+    border-radius: 4px;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 15px 20px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+
+    /* Allow table cells to wrap more easily */
+    th, td {
+        padding: 8px 10px;
+        font-size: 0.95em;
+    }
+
+    #drop-area {
+        padding: 20px;
+    }
+
+    #drop-area p {
+        font-size: 1em;
+    }
+
+    .link-info-box strong {
+        display: block; /* Stack labels on small screens */
+        min-width: 0;
+        margin-bottom: 3px;
+    }
+
+    .link-info-box code {
+        max-width: 100%; /* Code takes full width */
+    }
+
+    button, .button {
+        font-size: 0.95em;
+        padding: 8px 12px;
+    }
+
+    .small-button {
+        font-size: 0.85em;
+        padding: 3px 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 15px;
+    }
+
+    .container {
+        padding: 10px 15px;
+    }
+
+    h1 {
+        font-size: 1.6em;
+    }
+
+    .file-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+    }
+
+    .file-size, .file-status {
+        margin-right: 0;
+        min-width: auto;
+        text-align: left;
+    }
+
+    .remove-button {
+        align-self: flex-end;
+        margin-top: -20px; /* Position top right */
+    }
+}
+
+@media (max-width: 480px) {
+    /* Keep flex-direction: row; Use wrapping */
+    .file-item {
+        flex-wrap: wrap; /* Allow items to wrap */
+        /* Remove align-items: flex-start; Keep centered */
+        gap: 5px 10px; /* Row and column gap */
+    }
+
+    .file-name {
+        width: 100%; /* Take full width when wrapped */
+        order: 1; /* Put filename first */
+        min-width: 0; /* Reset min-width */
+    }
+
+    .file-size {
+        order: 2;
+        /* margin-right: auto; */ /* Push status/button right */
+    }
+
+    .file-status {
+        order: 3;
+        text-align: left; /* Align left when wrapped */
+        width: calc(100% - 40px); /* Take most width except button */
+        /* max-width: none; */ /* Remove max-width if set earlier */
+    }
+
+    .remove-button {
+        order: 4;
+        /* Remove align-self and margin-top */
+        margin-left: auto; /* Push to the right on its own line */
+    }
 }

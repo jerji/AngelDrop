@@ -1,29 +1,50 @@
+<!-- templates/upload.html -->
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Upload File</h1>
-    <p>Upload files to: {{ token }}</p>
+<h1>Upload File</h1>
+<p>Upload files via link: <code>{{ token }}</code></p>
+{% if link %}
+{# Optionally display the target folder - consider if this reveals too much info #}
+{# <p>Target: {{ link.folder_path | replace(app.config.BASE_PATH, '', 1) }} </p> #}
+{% endif %}
+{% if link and link.expiry_timestamp and not is_link_expired(link) %}
+<p class="note">This link expires: {{ link.expiry_timestamp | datetimeformat }}</p>
+{% elif link and is_link_expired(link) %}
+<p class="error">This link has expired.</p> {# Should be caught by backend, but good UX #}
+{% endif %}
 
-    <form method="post" enctype="multipart/form-data" id="upload-form">  <!-- Combined form -->
-        <input type="hidden" name="token" value="{{ token }}">
 
-        {% if requires_password %}
-            <div id="password-section">
-                <label for="link_password">Password:</label>
-                <input type="password" id="link_password" name="link_password" required>
-            </div>
-        {% endif %}
+<form method="post" enctype="multipart/form-data" id="upload-form">
+    <input type="hidden" name="token" value="{{ token }}">
 
-        <div id="drop-area">
-            <p>Drag and drop files here, or click to select files.</p>
-            <input type="file" id="fileElem" name="file" multiple style="display:none" onchange="handleFiles(this.files)">
-            <label class="button" for="fileElem">Select files</label>
-        </div>
-        <progress id="progress-bar" max=100 value=0></progress>
-        <p id="writing-status" style="display: none;">Writing to disk<span id="dots"></span></p>
-        <div id="file-list"></div>
+    {% if requires_password %}
+    <div id="password-section" class="form-field">
+        <label for="link_password">Password:</label>
+        <input type="password" id="link_password" name="link_password" required>
+    </div>
+    {% endif %}
 
-        <button type = "submit" id="submit-button" style="display: none;">Upload</button> <!-- Always hidden initially -->
-    </form>
+    <div id="drop-area" class="form-field">
+        <p>Drag and drop files here, or click to select files.</p>
+        <input type="file" id="fileElem" name="file" multiple style="display:none" onchange="handleFileSelect(this.files)">
+        <label class="button" for="fileElem">Select files</label>
+    </div>
+
+    <div id="upload-status-area" style="margin-top: 15px;">
+        <progress id="progress-bar" max="100" value="0" style="width: 100%; height: 25px; display: none;"></progress>
+        <p id="uploading-status" style="display: none; text-align: center; margin-top: 5px;">Uploading... <span
+                id="progress-percent">0</span>%</p>
+        <p id="writing-status" style="display: none; text-align: center; margin-top: 5px;">Processing<span id="dots">...</span></p>
+    </div>
+
+    <!-- Staged Files List -->
+    <div id="file-list" style="margin-top: 15px;"></div>
+
+    <!-- Submit button controlled by JS -->
+    <button type="submit" id="submit-button" class="button" style="display: none; margin-top: 15px;">Upload Selected
+        Files
+    </button>
+</form>
 
 {% endblock %}

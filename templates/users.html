@@ -1,21 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>File Uploader - User Management</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flash-messages">
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
+<!-- templates/users.html -->
+{% extends "base.html" %}
 
 {% block content %}
 <h1>User Management</h1>
@@ -35,63 +19,103 @@
 </div>
 
 <h2>Existing Users</h2>
-<table>
-    <thead>
+<div class="table-container">
+    <table>
+        <thead>
         <tr>
             <th>ID</th>
             <th>Username</th>
             <th>Actions</th>
         </tr>
-    </thead>
-    <tbody>
+        </thead>
+        <tbody>
         {% for user in users %}
         <tr id="user-row-{{ user['id'] }}">
             <td>{{ user['id'] }}</td>
             <td>{{ user['username'] }}</td>
             <td class="user-management-actions">
-                <form action="{{ url_for('delete_user_route', user_id=user['id']) }}" method="post" style="display:inline;">
-                    <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete user {{ user['username'] }}?');">Delete User</button>
+                <!-- Disable delete for self -->
+                {% if user['id'] == current_user_id %}
+                <button type="button" class="delete-button" disabled title="You cannot delete your own account">Delete
+                    User
+                </button>
+                {% else %}
+                <form action="{{ url_for('delete_user_route', user_id=user['id']) }}" method="post"
+                      style="display:inline;"
+                      onsubmit="return confirm('Are you sure you want to permanently delete user {{ user['username'] }}?');">
+                    <button type="submit" class="delete-button">Delete User</button>
                 </form>
+                {% endif %}
 
                 <button class="button reset-password-button" data-user-id="{{ user['id'] }}">Reset Password</button>
 
-                <form class="reset-password-form" id="reset-password-form-{{ user['id'] }}" method="post" style="display:none; margin-top: 10px;">
+                <form class="reset-password-form" id="reset-password-form-{{ user['id'] }}" method="post"
+                      style="display:none;">
                     <input type="hidden" name="action" value="reset_password">
                     <input type="hidden" name="user_id" value="{{ user['id'] }}">
-                    <input type="password" name="reset_password" placeholder="New Password" required>
+                    <label for="reset-pw-{{ user['id'] }}" class="sr-only">New Password for {{ user['username']
+                        }}</label> {# Screen reader label #}
+                    <input type="password" id="reset-pw-{{ user['id'] }}" name="reset_password"
+                           placeholder="New Password" required>
                     <button type="submit" class="button">Set New Password</button>
+                    <button type="button" class="button cancel-button cancel-reset-button"
+                            data-user-id="{{ user['id'] }}">Cancel
+                    </button>
+                    {# Added cancel #}
                 </form>
             </td>
         </tr>
+        {% else %}
+        <tr>
+            <td colspan="3" style="text-align: center;">No users found.</td>
+        </tr>
         {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
 
-<p><a href="{{ url_for('admin') }}">Back to Admin Panel</a></p>
+<p style="margin-top: 20px;"><a href="{{ url_for('admin') }}" class="button">Back to Admin Panel</a></p>
 
 <script>
     document.querySelectorAll('.reset-password-button').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const userId = this.dataset.userId;
             const form = document.getElementById(`reset-password-form-${userId}`);
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-             // Close other open forms if any are open
+            // Hide the 'Reset Password' button itself
+            this.style.display = 'none';
+            // Show the form
+            form.style.display = 'flex'; // Use flex for better inline layout
+            form.querySelector('input[type="password"]').focus(); // Focus the input
+            // Hide other reset forms that might be open
             document.querySelectorAll('.reset-password-form').forEach(otherForm => {
                 if (otherForm.id !== form.id) {
                     otherForm.style.display = 'none';
+                    // Show the corresponding 'Reset Password' button again
+                    const otherUserId = otherForm.querySelector('input[name="user_id"]').value;
+                    const otherResetButton = document.querySelector(`.reset-password-button[data-user-id="${otherUserId}"]`);
+                    if (otherResetButton) otherResetButton.style.display = 'inline-block';
                 }
             });
         });
     });
 
-    // Example of preventing form resubmission on page refresh (optional, but good practice)
+    // Add handlers for the Cancel buttons within reset forms
+    document.querySelectorAll('.cancel-reset-button').forEach(cancelButton => {
+        cancelButton.addEventListener('click', function () {
+            const userId = this.dataset.userId;
+            const form = document.getElementById(`reset-password-form-${userId}`);
+            const resetButton = document.querySelector(`.reset-password-button[data-user-id="${userId}"]`);
+            form.style.display = 'none'; // Hide the form
+            form.reset(); // Clear the password field
+            if (resetButton) resetButton.style.display = 'inline-block'; // Show the main button again
+        });
+    });
+
+
+    // Prevent form resubmission on refresh
     if (window.history.replaceState) {
-      window.history.replaceState(null, null, window.location.href);
+        window.history.replaceState(null, null, window.location.href);
     }
 </script>
 
 {% endblock %}
-    </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
