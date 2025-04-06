@@ -264,8 +264,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-# --- Admin Routes ---
-
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     """Admin dashboard to manage upload links."""
@@ -596,7 +594,6 @@ with app.app_context():
         app.logger.info("Users found in database. Skipping initial user creation from config.")
 
 
-# --- Add a simple root route ---
 @app.route('/')
 def index():
     if session.get('logged_in'):
