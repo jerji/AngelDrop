@@ -595,33 +595,11 @@ with app.app_context():
         app.logger.info("Users found in database. Skipping initial user creation from config.")
 
 
-@app.route('/android-chrome-192x192.png')
-def favicon_android_192x192():
-    return send_from_directory(os.path.join(app.root_path, 'static/icons'), 'android-chrome-192x192.png')
-
-@app.route('/android-chrome-512x512.png')
-def favicon_android_512x512():
-    return send_from_directory(os.path.join(app.root_path, 'static/icons'), 'android-chrome-512x512.png')
-
-@app.route('/apple-touch-icon.png')
-def favicon_apple_touch_icon():
-    return send_from_directory(os.path.join(app.root_path, 'static/icons'), 'apple-touch-icon.png')
-
-@app.route('/favicon-16x16.png')
-def favicon_favicon_16x16():
-    return send_from_directory(os.path.join(app.root_path, 'static/icons'), 'favicon-16x16.png')
-
-@app.route('/favicon-32x32.png')
-def favicon_favicon_32x32():
-    return send_from_directory(os.path.join(app.root_path, 'static/icons'), 'favicon-32x32.png')
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/icons'), 'favicon.ico')
 
-@app.route('/manifest.json')
-def manifest():
-    return send_from_directory(os.path.join(app.root_path, 'static/icons'),'manifest.json')
 
 @app.route('/')
 def index():
