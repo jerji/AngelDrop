@@ -95,7 +95,7 @@
             <td class="actions-cell">
                 {% set upload_url = url_for('upload', token=link['token'], _external=True) %}
                 {# "Open Link" styled as a button #}
-                <a href="{{ upload_url }}" class="button small-button open-link-button" target="_blank"
+                <a href="{{ url_for('upload', token=link['token']) }}" class="button small-button open-link-button" target="_blank"
                    title="Open Upload Link in New Tab">Open</a>
                 <button class="copy-button small-button" data-link="{{ upload_url }}" title="Copy Upload URL">Copy
                 </button>
