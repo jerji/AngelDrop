@@ -127,7 +127,11 @@ def get_link_by_path(db, folder_path):
         sqlite3.Row or None: Link record if found, None otherwise
     """
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM links WHERE folder_path = ?', (folder_path,))
+
+    if folder_path.endswith('/'):
+        cursor.execute('SELECT * FROM links WHERE folder_path = ?', (folder_path.rstrip('/'),))  # Normalize path
+    else:
+        cursor.execute('SELECT * FROM links WHERE folder_path = ?', (folder_path,))
     return cursor.fetchone()
 
 
@@ -175,7 +179,7 @@ def delete_db_link(db, link_id):
     db.commit()
 
 
-def get_user(db, username):
+def get_user(db, username=None, id=None):
     """
     Get a user by username.
 
@@ -187,7 +191,10 @@ def get_user(db, username):
         sqlite3.Row or None: User record if found, None otherwise
     """
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    if username:
+        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    elif id:  # Added to allow lookup by id
+        cursor.execute('SELECT * FROM users WHERE id = ?', (id,))
     return cursor.fetchone()
 
 
@@ -210,4 +217,51 @@ def add_user(db, username, password):
     password_hash = generate_password_hash(password)
     cursor.execute('INSERT INTO users (username, password_hash) VALUES (?, ?)',
                    (username, password_hash))
+    db.commit()
+
+
+def get_all_users(db):
+    """
+    Get all users from the database.
+
+    Args:
+        db: Database connection
+
+    Returns:
+        list: List of all user records
+    """
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM users')
+    return cursor.fetchall()
+
+
+def delete_user(db, user_id):
+    """
+    Delete a user from the database by their ID.
+
+    Args:
+        db: Database connection
+        user_id (int): ID of the user to delete
+    """
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    db.commit()
+
+
+def update_user_password(db, user_id, new_password):
+    """
+    Update a user's password in the database.
+
+    Args:
+        db: Database connection
+        user_id (int): ID of the user to update
+        new_password (str): The new password
+    """
+    password_hash = generate_password_hash(new_password)
+    cursor = db.cursor()
+    cursor.execute('''
+        UPDATE users
+        SET password_hash = ?
+        WHERE id = ?
+    ''', (password_hash, user_id))
     db.commit()

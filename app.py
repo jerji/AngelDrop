@@ -5,8 +5,8 @@ import time
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
-from database import get_db, init_db, get_user, add_user, get_link_by_token, get_all_links
-from database import get_link_by_path, create_link, delete_db_link, is_link_expired, check_link_password
+from database import get_user, add_user, get_link_by_token, get_all_links, get_all_users, delete_user, update_user_password
+from database import get_db, init_db, get_link_by_path, create_link, delete_db_link, is_link_expired, check_link_password
 
 app = Flask(__name__)
 
@@ -239,6 +239,65 @@ def admin():
     links = get_all_links(get_db())
     return render_template('admin.html', links=links, basepath=app.config['BASE_PATH'].rstrip('/') + '/')
 
+@app.route('/admin/users', methods=['GET', 'POST'])
+def manage_users():
+    """Manage user accounts."""
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    if session.get('username') != 'admin':
+        return "<h5> Only Admin user can manage users.</h5>", 403
+
+    db = get_db()
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'add':
+            username = request.form['new_username']
+            password = request.form['new_password']
+            if not username or not password:
+                flash('Username and password are required to add a user.', 'error')
+            elif get_user(db, username):
+                flash('Username already exists.', 'error')
+            else:
+                add_user(db, username, password)
+                flash(f'User {username} added successfully.', 'success')
+        elif action == 'reset_password':
+            user_id = request.form.get('user_id')
+            new_password = request.form.get('reset_password')
+            if user_id and new_password:
+                user_to_reset = get_user(db, id=user_id) # Assuming get_user can search by ID
+                if user_to_reset:
+                    update_user_password(db, user_id, new_password)
+                    flash(f'Password for user {user_to_reset["username"]} reset successfully.', 'success')
+                else:
+                    flash('User not found for password reset.', 'error')
+            else:
+                flash('User ID and new password are required for password reset.', 'error')
+        return redirect(url_for('manage_users'))
+
+    users = get_all_users(db)
+    return render_template('users.html', users=users)
+
+
+@app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+def delete_user_route(user_id):
+    """Delete a specific user by ID."""
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    if session.get('username') != 'admin':
+        return "<h5> Only Admin user can manage users.</h5>", 403
+
+    db = get_db()
+    user_to_delete = get_user(db, id=user_id)
+    if user_to_delete and user_to_delete['username'] != session.get('username'):
+        delete_user(db, user_id)
+        flash(f'User {user_to_delete["username"]} deleted successfully.', 'success')
+    elif user_to_delete and user_to_delete['username'] == session.get('username'):
+        flash('You cannot delete your own account.', 'error')
+    else:
+        flash('User not found.', 'error')
+    return redirect(url_for('manage_users'))
+
+
 
 @app.route('/admin/cleanup', methods=['GET', 'POST'])
 def cleanup_links():
@@ -325,11 +384,16 @@ def upload(token):
 
 # --- Initialization ---
 with app.app_context():
-    # Initialize database and create users from config
+    # Initialize database
     init_db(app)
-    database = get_db()
-    for username, password in config["users"].items():
-        add_user(database, username, password)
+    # Load initial admin user from config if no users exist
+    if not get_all_users(get_db()):
+        database = get_db()
+        if 'admin' not in config['users']:
+            print('No "admin" user defined! Exiting.')
+            exit(1)
+        for username, password in config["users"].items():
+            add_user(database, username, password)
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=5000)

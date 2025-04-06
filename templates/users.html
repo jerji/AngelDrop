@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>File Uploader - User Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+{% block content %}
+<h1>User Management</h1>
+
+<div class="add-user-form">
+    <h2>Add New User</h2>
+    <form method="post">
+        <input type="hidden" name="action" value="add">
+        <label for="new_username">Username:</label>
+        <input type="text" id="new_username" name="new_username" required><br>
+
+        <label for="new_password">Password:</label>
+        <input type="password" id="new_password" name="new_password" required><br>
+
+        <button type="submit">Add User</button>
+    </form>
+</div>
+
+<h2>Existing Users</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr id="user-row-{{ user['id'] }}">
+            <td>{{ user['id'] }}</td>
+            <td>{{ user['username'] }}</td>
+            <td class="user-management-actions">
+                <form action="{{ url_for('delete_user_route', user_id=user['id']) }}" method="post" style="display:inline;">
+                    <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete user {{ user['username'] }}?');">Delete User</button>
+                </form>
+
+                <button class="button reset-password-button" data-user-id="{{ user['id'] }}">Reset Password</button>
+
+                <form class="reset-password-form" id="reset-password-form-{{ user['id'] }}" method="post" style="display:none; margin-top: 10px;">
+                    <input type="hidden" name="action" value="reset_password">
+                    <input type="hidden" name="user_id" value="{{ user['id'] }}">
+                    <input type="password" name="reset_password" placeholder="New Password" required>
+                    <button type="submit" class="button">Set New Password</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p><a href="{{ url_for('admin') }}">Back to Admin Panel</a></p>
+
+<script>
+    document.querySelectorAll('.reset-password-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            const form = document.getElementById(`reset-password-form-${userId}`);
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+             // Close other open forms if any are open
+            document.querySelectorAll('.reset-password-form').forEach(otherForm => {
+                if (otherForm.id !== form.id) {
+                    otherForm.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Example of preventing form resubmission on page refresh (optional, but good practice)
+    if (window.history.replaceState) {
+      window.history.replaceState(null, null, window.location.href);
+    }
+</script>
+
+{% endblock %}
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -92,6 +92,7 @@
     </tbody>
 </table>
 
+{% if session['username'] == "admin" %}<a href="{{ url_for('manage_users') }}">Manage Users</a><br>{% endif %}
 <a href="{{ url_for('logout') }}">Logout</a>
 
 <script>
