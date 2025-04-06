@@ -125,7 +125,7 @@
 <script>
     document.querySelectorAll('.copy-button').forEach(button => {
         button.addEventListener('click', function () {
-            const linkToCopy = this.dataset.link; // Link is now directly in data-link
+            const linkToCopy = window.location.href.split(`admin`)[0] + 'upload/' + this.dataset.link
             navigator.clipboard.writeText(linkToCopy)
                 .then(() => {
                     const originalText = this.textContent;
