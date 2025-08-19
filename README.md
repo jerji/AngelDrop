@@ -61,7 +61,7 @@ angelDrop/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/angelDrop.git
+git clone https://github.com/jerji/angelDrop.git
 cd angelDrop
 ```
 
