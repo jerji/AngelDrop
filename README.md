@@ -62,7 +62,7 @@ angelDrop/
 
 ```bash
 git clone https://github.com/jerji/AngelDrop.git
-cd angelDrop
+cd AngelDrop
 ```
 
 ### 2. Create a Virtual Environment
